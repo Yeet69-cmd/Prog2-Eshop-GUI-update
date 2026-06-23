@@ -1,8 +1,7 @@
 package domain.exceptions;
 
 public class LoginFehlgeschlagenException extends Exception {
-
-    public LoginFehlgeschlagenException() {
-        super("Login fehlgeschlagen.");
+    public LoginFehlgeschlagenException(String benutzername) {
+        super("Login fehlgeschlagen: Benutzername oder Passwort ist falsch für '" + benutzername + "'.");
     }
 }

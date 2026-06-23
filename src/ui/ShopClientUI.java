@@ -3,14 +3,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.LocalDate;
-import java.util.List;
+
 import domain.Kunde;
 import domain.*;
-import domain.exceptions.LoginFehlgeschlagenException;
 import logic.ShopService;
 import domain.exceptions.ArtikelExistiertBereitsException;
 import domain.exceptions.NichtGenugBestandException;
 import domain.exceptions.ArtikelExistiertNichtException;
+import domain.exceptions.LoginFehlgeschlagenException;
 
 public class ShopClientUI {
     private ShopService shop;

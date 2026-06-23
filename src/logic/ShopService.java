@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDate;
 import java.io.IOException;
-import domain.exceptions.LoginFehlgeschlagenException;
+
 import domain.exceptions.ArtikelExistiertBereitsException;
-import domain.exceptions.LoginFehlgeschlagenException;
 import domain.exceptions.NichtGenugBestandException;
 import domain.exceptions.ArtikelExistiertNichtException;
+import domain.exceptions.LoginFehlgeschlagenException;
 
 public class ShopService {
     private List<Artikel> artikelList= new ArrayList<>();
@@ -23,7 +23,7 @@ public class ShopService {
     public void addArtikel(Artikel artikel) throws ArtikelExistiertBereitsException {
         for (Artikel a : artikelList) {
             if (a.getArtikelId() == artikel.getArtikelId()) {
-                throw new ArtikelExistiertBereitsException();
+                throw new ArtikelExistiertBereitsException(artikel.getArtikelId());
             }
         }
 
@@ -42,7 +42,7 @@ public class ShopService {
             int menge = eintrag.getMenge();
 
             if (menge > artikel.getBestand()) {
-                throw new NichtGenugBestandException(artikel.getName());
+                throw new NichtGenugBestandException(artikel.getName(), menge, artikel.getBestand());
             }
 
         }
@@ -89,7 +89,7 @@ public class ShopService {
             }
         }
 
-        throw new LoginFehlgeschlagenException();
+        throw new LoginFehlgeschlagenException(benutzername);
     }
     public void artikelLoeschen(int artikelId)
             throws ArtikelExistiertNichtException {
@@ -101,7 +101,7 @@ public class ShopService {
             }
         }
 
-        throw new ArtikelExistiertNichtException();
+        throw new ArtikelExistiertNichtException(artikelId);
     }
     public boolean hatArtikel() {
         return !artikelList.isEmpty();

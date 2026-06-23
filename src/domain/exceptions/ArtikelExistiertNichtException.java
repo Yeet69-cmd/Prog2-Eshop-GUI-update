@@ -1,8 +1,7 @@
 package domain.exceptions;
 
 public class ArtikelExistiertNichtException extends Exception {
-
-    public ArtikelExistiertNichtException() {
-        super("Artikel existiert nicht.");
+    public ArtikelExistiertNichtException(int artikelId) {
+        super("Artikel mit ID " + artikelId + " wurde nicht gefunden.");
     }
 }
