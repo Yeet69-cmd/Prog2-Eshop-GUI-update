@@ -132,6 +132,9 @@ public class ShopService {
         } catch (IOException | ClassNotFoundException e) {
 
         }
+        System.out.println("Ordner: " + System.getProperty("user.dir"));
+        System.out.println("artikel.dat existiert: " + new java.io.File("artikel.dat").exists());
+        System.out.println("artikel.dat pfad: " + new java.io.File("artikel.dat").getAbsolutePath());
     }
 
 }

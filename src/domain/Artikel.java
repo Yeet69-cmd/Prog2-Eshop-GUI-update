@@ -31,4 +31,12 @@ public class Artikel implements Serializable{
         this.preis = preis;
         this.bestand = bestand;
     }
+    @Override
+    public String toString() {
+        return "ID: " + getArtikelId()
+                + " | Name: " + getName()
+                + " | Bestand: " + getBestand()
+                + " | Preis: " + getPreis() + " €";
+    }
+
 }

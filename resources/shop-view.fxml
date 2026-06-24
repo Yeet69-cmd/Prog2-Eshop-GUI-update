@@ -1,20 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
 
-<VBox xmlns="http://javafx.com/javafx/21"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="ui.ShopController"
-      alignment="CENTER"
-      spacing="20">
-
-    <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
-    </padding>
-
-    <Label text="eShop GUI"/>
-    <Button text="Test Button"/>
-
-</VBox>
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="442.0" prefWidth="630.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.ShopController">
+  <tabs>
+    <Tab text="Login">
+      <content>
+        <AnchorPane id="loginStatusLabel" minHeight="0.0" minWidth="0.0" prefHeight="368.0" prefWidth="590.0">
+               <children>
+                  <TextField id="loginNameField" fx:id="loginNameField" layoutX="217.0" layoutY="48.0" prefHeight="34.0" prefWidth="166.0" promptText="Benutzername" />
+                  <PasswordField id="loginPasswortField" fx:id="loginPasswortField" layoutX="217.0" layoutY="96.0" prefHeight="34.0" prefWidth="166.0" promptText="Passwort" />
+                  <Button layoutX="256.0" layoutY="144.0" mnemonicParsing="false" onAction="#login" prefHeight="30.0" prefWidth="88.0" text="Login" />
+                  <Label id="loginStatusLabel" fx:id="loginStatusLabel" layoutX="256.0" layoutY="198.0" prefHeight="18.0" prefWidth="94.0" text="Nicht eingeloggt" />
+               </children></AnchorPane>
+      </content>
+    </Tab>
+    <Tab text="Artikel">
+      <content>
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="444.0" prefWidth="615.0">
+               <children>
+                  <TextArea id="artikelTextArea" fx:id="artikelTextArea" layoutX="237.0" layoutY="14.0" prefHeight="230.0" prefWidth="379.0" />
+                  <Button layoutX="372.0" layoutY="252.0" mnemonicParsing="false" onAction="#artikelAnzeigen" prefHeight="30.0" prefWidth="109.0" text="Artikel anzeigen" />
+                  <TextField fx:id="artikelIdField" layoutX="23.0" layoutY="20.0" prefHeight="26.0" prefWidth="86.0" promptText="Artikel-ID" />
+                  <TextField fx:id="artikelNameField" layoutX="23.0" layoutY="66.0" prefHeight="26.0" prefWidth="87.0" promptText="Name" />
+                  <TextField fx:id="artikelBestandField" layoutX="23.0" layoutY="113.0" prefHeight="26.0" prefWidth="86.0" promptText="Bestand" />
+                  <TextField fx:id="artikelPreisField" layoutX="24.0" layoutY="161.0" prefHeight="28.0" prefWidth="86.0" promptText="Preis" />
+                  <Button layoutX="66.0" layoutY="222.0" mnemonicParsing="false" onAction="#artikelAnlegen" prefHeight="30.0" prefWidth="109.0" text="Artikel anlegen" />
+               </children></AnchorPane>
+      </content>
+    </Tab>
+      <Tab text="Lager">
+         <content>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <TextField id="lagerArtikelnummerField" fx:id="lagerArtikelnummerField" layoutX="186.0" layoutY="66.0" prefHeight="34.0" prefWidth="184.0" promptText="Artikelnummer" />
+                  <TextField id="lagerMengeField" fx:id="lagerMengeField" layoutX="186.0" layoutY="122.0" prefHeight="34.0" prefWidth="183.0" promptText="Menge" />
+                  <Button layoutX="186.0" layoutY="181.0" mnemonicParsing="false" onAction="#einlagern" prefHeight="26.0" prefWidth="70.0" text="Einlagern" />
+                  <Button layoutX="300.0" layoutY="181.0" mnemonicParsing="false" onAction="#auslagern" prefHeight="26.0" prefWidth="70.0" text="Auslagern" />
+                  <Label id="lagerStatusLabel" layoutX="264.0" layoutY="177.0" />
+               </children></AnchorPane>
+         </content>
+      </Tab>
+      <Tab text="Ereignisse">
+         <content>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <TextArea id="ereignisTextArea" fx:id="ereignisTextArea" layoutX="14.0" layoutY="14.0" prefHeight="229.0" prefWidth="570.0" />
+                  <Button layoutX="214.0" layoutY="259.0" mnemonicParsing="false" onAction="#ereignisseAnzeigen" prefHeight="42.0" prefWidth="170.0" text="Ereignisse anzeigen" />
+               </children></AnchorPane>
+         </content>
+      </Tab>
+  </tabs>
+</TabPane>
