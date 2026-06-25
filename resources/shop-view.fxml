@@ -33,6 +33,7 @@
                   <TextField fx:id="artikelBestandField" layoutX="23.0" layoutY="113.0" prefHeight="26.0" prefWidth="86.0" promptText="Bestand" />
                   <TextField fx:id="artikelPreisField" layoutX="24.0" layoutY="161.0" prefHeight="28.0" prefWidth="86.0" promptText="Preis" />
                   <Button layoutX="66.0" layoutY="222.0" mnemonicParsing="false" onAction="#artikelAnlegen" prefHeight="30.0" prefWidth="109.0" text="Artikel anlegen" />
+                  <Button layoutX="125.0" layoutY="18.0" mnemonicParsing="false" onAction="#artikelLoeschen" prefHeight="30.0" prefWidth="101.0" text="Artikel löschen" />
                </children></AnchorPane>
       </content>
     </Tab>

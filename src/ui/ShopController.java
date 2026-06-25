@@ -107,5 +107,24 @@ public class ShopController {
             artikelTextArea.setText(e.getMessage());
         }
     }
+    @FXML
+    public void artikelLoeschen() {
+
+        try {
+            int artikelId =
+                    Integer.parseInt(
+                            artikelIdField.getText()
+                    );
+
+            shopService.artikelLoeschen(artikelId);
+
+            shopService.speichern();
+
+            artikelAnzeigen();
+
+        } catch (Exception e) {
+            artikelTextArea.setText(e.getMessage());
+        }
+    }
 
 }
