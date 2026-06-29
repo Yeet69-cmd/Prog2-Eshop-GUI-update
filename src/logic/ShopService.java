@@ -58,7 +58,7 @@ public class ShopService {
             int menge = eintrag.getMenge();
             artikel.setBestand(artikel.getBestand() - menge);
             /* Artikel Auslegen*/
-            LagerEreignis ereignis = new LagerEreignis(tag, artikel, menge, kunde, "AUS");
+            LagerEreignis ereignis = new LagerEreignis(tag, artikel, menge, kunde, "AUS",artikel.getBestand());
             lagerEreignisList.add(ereignis);
         }
         List<WarenkorbEintrag> gekaufteEintraege =
@@ -147,7 +147,7 @@ public class ShopService {
 
                 int tag = LocalDate.now().getDayOfYear();
                 lagerEreignisList.add(
-                        new LagerEreignis(tag, artikel, menge, null, "EIN")
+                        new LagerEreignis(tag, artikel, menge, null, "EIN", artikel.getBestand())
                 );
 
                 speichern();
@@ -176,7 +176,8 @@ public class ShopService {
 
                 int tag = LocalDate.now().getDayOfYear();
                 lagerEreignisList.add(
-                        new LagerEreignis(tag, artikel, menge, null, "AUS")
+                        new LagerEreignis(tag, artikel, menge, null, "EIN", artikel.getBestand()
+                        )
                 );
 
                 speichern();

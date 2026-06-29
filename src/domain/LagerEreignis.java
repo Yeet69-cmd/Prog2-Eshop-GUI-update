@@ -22,12 +22,17 @@ public class LagerEreignis implements Serializable{
     public String getTyp() {
         return typ;
     }
-    public LagerEreignis(int datum, Artikel artikel, int anzahl, Benutzer benutzer, String typ) {
+    private int bestandNachher;
+    public LagerEreignis(int datum, Artikel artikel, int anzahl, Benutzer benutzer, String typ, int bestandNachher) {
         this.datum = datum;
         this.artikel = artikel;
         this.anzahl = anzahl;
         this.benutzer = benutzer;
         this.typ = typ;
+        this.bestandNachher = bestandNachher;
+    }
+    public int getBestandNachher() {
+        return bestandNachher;
     }
     @Override
     public String toString() {

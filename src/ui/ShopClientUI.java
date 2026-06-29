@@ -245,7 +245,7 @@ public class ShopClientUI {
                 artikel.setBestand(neuerBestand);
                 int tag= LocalDate.now().getDayOfYear();
                 LagerEreignis ereignis =
-                        new LagerEreignis(tag, artikel, neuerBestand, (Mitarbeiter) eingeloggterBenutzer,"EIN");
+                        new LagerEreignis(tag, artikel, neuerBestand, (Mitarbeiter) eingeloggterBenutzer,"EIN",artikel.getBestand());
 
                 shop.getEreignisse().add(ereignis);
 

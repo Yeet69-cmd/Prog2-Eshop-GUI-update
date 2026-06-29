@@ -1,6 +1,8 @@
 package ui;
 
 import domain.Artikel;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import logic.*;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -32,6 +34,8 @@ public class ShopController {
 
 
 
+    @FXML
+    private TabPane shopTabPane;
     @FXML
     private TextField loginNameField;
     @FXML
@@ -78,7 +82,30 @@ public class ShopController {
     @FXML
     private Tab ereignisseTab;
     @FXML private Tab warenkorbTab;
+    @FXML
+    private TextArea warenkorbArtikelTextArea;
+    @FXML
+    private ComboBox<Artikel> warenkorbArtikelComboBox;
+    @FXML
+    private TextField warenkorbMengeField;
+    @FXML
+    private TextArea warenkorbTextArea;
+    @FXML
+    private ComboBox<Artikel> graphArtikelComboBox;
 
+    @FXML
+    private LineChart<Number, Number> bestandChart;
+
+    @FXML
+    private NumberAxis xAxis;
+
+    @FXML
+    private NumberAxis yAxis;
+
+    @FXML
+    public void graphAnzeigen() {
+        System.out.println("Graph anzeigen geklickt");
+    }
     @FXML
     public void initialize() {
         artikelTab.setDisable(true);
@@ -98,7 +125,7 @@ public class ShopController {
             if (eingeloggterBenutzer instanceof Kunde) {
                 aktuellerKunde = (Kunde) eingeloggterBenutzer;
 
-                artikelTab.setDisable(false);
+                artikelTab.setDisable(true);
                 warenkorbTab.setDisable(false);
 
                 lagerTab.setDisable(true);
@@ -247,6 +274,151 @@ public class ShopController {
             mitarbeiterStatusLabel.setText(e.getMessage());
         }
     }
+    // WarenKorb
+    @FXML
+    public void warenkorbArtikelAnzeigen() {
 
+        warenkorbArtikelTextArea.clear();
+
+        warenkorbArtikelComboBox.getItems().clear();
+
+        for (Artikel artikel : shopService.getArtikelList()) {
+
+            warenkorbArtikelTextArea.appendText(
+                    artikel.toString() + "\n"
+            );
+
+            warenkorbArtikelComboBox.getItems().add(artikel);
+        }
+    }
+    @FXML
+    public void artikelInWarenkorb() {
+        try {
+            if (aktuellerKunde == null) {
+                warenkorbTextArea.setText("Bitte zuerst als Kunde einloggen.");
+                return;
+            }
+
+            Artikel artikel = warenkorbArtikelComboBox.getValue();
+
+            if (artikel == null) {
+                warenkorbTextArea.setText("Bitte einen Artikel auswählen.");
+                return;
+            }
+
+            int menge = Integer.parseInt(warenkorbMengeField.getText());
+
+            aktuellerKunde.getWarenkorb().addArtikel(artikel, menge);
+
+            warenkorbTextArea.setText(
+                    artikel.getName() + " x " + menge + " wurde in den Warenkorb gelegt."
+            );
+
+        } catch (Exception e) {
+            warenkorbTextArea.setText("Fehler: " + e.getMessage());
+        }
+    }
+    @FXML
+    public void warenkorbAnzeigen() {
+        if (aktuellerKunde == null) {
+            warenkorbTextArea.setText("Bitte zuerst als Kunde einloggen.");
+            return;
+        }
+
+        warenkorbTextArea.clear();
+
+        if (aktuellerKunde.getWarenkorb().getEintraege().isEmpty()) {
+            warenkorbTextArea.setText("Warenkorb ist leer.");
+            return;
+        }
+
+        for (WarenkorbEintrag e : aktuellerKunde.getWarenkorb().getEintraege()) {
+            warenkorbTextArea.appendText(
+                    e.getArtikel().getName()
+                            + " x "
+                            + e.getMenge()
+                            + "\n"
+            );
+        }
+    }
+    @FXML
+    public void kaufen() {
+        try {
+            if (aktuellerKunde == null) {
+                warenkorbTextArea.setText("Bitte zuerst als Kunde einloggen.");
+                return;
+            }
+
+            Rechnung r = shopService.kaufen(aktuellerKunde);
+            shopService.speichern();
+
+            warenkorbTextArea.clear();
+            warenkorbTextArea.appendText("Rechnung:\n");
+            warenkorbTextArea.appendText("Kunde: " + r.getKunde().getName() + "\n");
+            warenkorbTextArea.appendText("Datum: " + r.getDatum() + "\n\n");
+
+            for (WarenkorbEintrag e : r.getWarenkorbList()) {
+                warenkorbTextArea.appendText(
+                        e.getArtikel().getName() + " x " + e.getMenge() + "\n"
+                );
+            }
+
+            warenkorbTextArea.appendText("\nGesamtpreis: " + r.getGesamtpreis() + " €");
+
+            artikelAnzeigen();
+            warenkorbArtikelTextArea.clear();
+
+        } catch (Exception e) {
+            warenkorbTextArea.setText("Fehler: " + e.getMessage());
+        }
+    }
+    @FXML
+    public void bestandAndern() {
+
+        try {
+
+            int id = Integer.parseInt(artikelIdField.getText());
+            int neuerBestand = Integer.parseInt(artikelBestandField.getText());
+
+            for (Artikel artikel : shopService.getArtikelList()) {
+
+                if (artikel.getArtikelId() == id) {
+
+                    artikel.setBestand(neuerBestand);
+
+                    shopService.speichern();
+
+                    artikelAnzeigen();
+
+                    return;
+                }
+            }
+
+            artikelTextArea.setText("Artikel nicht gefunden.");
+
+        } catch (Exception e) {
+            artikelTextArea.setText(e.getMessage());
+        }
+    }
+    @FXML
+    public void logout() {
+        eingeloggterBenutzer = null;
+        aktuellerKunde = null;
+
+        loginNameField.clear();
+        loginPasswortField.clear();
+
+        loginStatusLabel.setText("Nicht eingeloggt");
+
+        artikelTab.setDisable(true);
+        lagerTab.setDisable(true);
+        ereignisseTab.setDisable(true);
+        warenkorbTab.setDisable(true);
+        mitarbeiterRegistrierenTab.setDisable(true);
+
+        kundeRegistrierenTab.setDisable(false);
+        loginTab.setDisable(false);
+        shopTabPane.getSelectionModel().select(loginTab);
+    }
 
 }
