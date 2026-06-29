@@ -136,5 +136,52 @@ public class ShopService {
         System.out.println("artikel.dat existiert: " + new java.io.File("artikel.dat").exists());
         System.out.println("artikel.dat pfad: " + new java.io.File("artikel.dat").getAbsolutePath());
     }
+    public void einlagern(int artikelId, int menge)
+            throws ArtikelExistiertNichtException {
 
+        for (Artikel artikel : artikelList) {
+            if (artikel.getArtikelId() == artikelId) {
+                artikel.setBestand(artikel.getBestand() + menge);
+
+                int tag = LocalDate.now().getDayOfYear();
+                lagerEreignisList.add(
+                        new LagerEreignis(tag, artikel, menge, null, "EIN")
+                );
+
+                speichern();
+                return;
+            }
+        }
+
+        throw new ArtikelExistiertNichtException(artikelId);
+    }
+
+    public void auslagern(int artikelId, int menge)
+            throws ArtikelExistiertNichtException, NichtGenugBestandException {
+
+        for (Artikel artikel : artikelList) {
+            if (artikel.getArtikelId() == artikelId) {
+
+                if (menge > artikel.getBestand()) {
+                    throw new NichtGenugBestandException(
+                            artikel.getName(),
+                            menge,
+                            artikel.getBestand()
+                    );
+                }
+
+                artikel.setBestand(artikel.getBestand() - menge);
+
+                int tag = LocalDate.now().getDayOfYear();
+                lagerEreignisList.add(
+                        new LagerEreignis(tag, artikel, menge, null, "AUS")
+                );
+
+                speichern();
+                return;
+            }
+        }
+
+        throw new ArtikelExistiertNichtException(artikelId);
+    }
 }

@@ -77,16 +77,44 @@ public class ShopController {
     }
     @FXML
     public void einlagern() {
-        lagerStatusLabel.setText("Einlagern geklickt");
+        try {
+            int artikelId = Integer.parseInt(lagerArtikelnummerField.getText());
+            int menge = Integer.parseInt(lagerMengeField.getText());
+
+            shopService.einlagern(artikelId, menge);
+
+            lagerStatusLabel.setText("Einlagerung erfolgreich");
+            artikelAnzeigen();
+
+        } catch (Exception e) {
+            lagerStatusLabel.setText("Fehler: " + e.getMessage());
+        }
     }
 
     @FXML
     public void auslagern() {
-        lagerStatusLabel.setText("Auslagern geklickt");
+        try {
+            int artikelId = Integer.parseInt(lagerArtikelnummerField.getText());
+            int menge = Integer.parseInt(lagerMengeField.getText());
+
+            shopService.auslagern(artikelId, menge);
+
+            lagerStatusLabel.setText("Auslagerung erfolgreich");
+            artikelAnzeigen();
+
+        } catch (Exception e) {
+            lagerStatusLabel.setText("Fehler: " + e.getMessage());
+        }
     }
     @FXML
     public void ereignisseAnzeigen() {
-        ereignisTextArea.setText("Test Ereignis");
+        ereignisTextArea.clear();
+
+        for (LagerEreignis e : shopService.getEreignisse()) {
+            ereignisTextArea.appendText(
+                    e.toString() + "\n"
+            );
+        }
     }
     @FXML
     public void artikelAnlegen() {
@@ -126,5 +154,6 @@ public class ShopController {
             artikelTextArea.setText(e.getMessage());
         }
     }
+
 
 }

@@ -46,6 +46,7 @@
                   <Button layoutX="186.0" layoutY="181.0" mnemonicParsing="false" onAction="#einlagern" prefHeight="26.0" prefWidth="70.0" text="Einlagern" />
                   <Button layoutX="300.0" layoutY="181.0" mnemonicParsing="false" onAction="#auslagern" prefHeight="26.0" prefWidth="70.0" text="Auslagern" />
                   <Label id="lagerStatusLabel" layoutX="264.0" layoutY="177.0" />
+                  <Label fx:id="lagerStatusLabel" layoutX="180.0" layoutY="226.0" prefHeight="18.0" prefWidth="187.0" text="                       Status....." />
                </children></AnchorPane>
          </content>
       </Tab>

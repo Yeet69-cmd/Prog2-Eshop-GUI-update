@@ -29,4 +29,12 @@ public class LagerEreignis implements Serializable{
         this.benutzer = benutzer;
         this.typ = typ;
     }
+    @Override
+    public String toString() {
+        return datum + " | "
+                + typ + " | "
+                + artikel.getName()
+                + " | Menge: "
+                + anzahl;
+    }
 }
