@@ -11,11 +11,13 @@ import domain.exceptions.NichtGenugBestandException;
 import domain.exceptions.ArtikelExistiertNichtException;
 import domain.exceptions.LoginFehlgeschlagenException;
 
+
 public class ShopService {
     private List<Artikel> artikelList= new ArrayList<>();
     private List<Benutzer> kundenList= new ArrayList<>();
     private List<Mitarbeiter> mitarbeiterList= new ArrayList<>();
     private List<LagerEreignis>  lagerEreignisList= new ArrayList<>();
+
     private int neuBenutzerId = 2;
     public int getNeuBenutzerId() {
         return neuBenutzerId++;

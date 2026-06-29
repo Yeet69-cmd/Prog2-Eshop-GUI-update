@@ -9,20 +9,50 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="442.0" prefWidth="630.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.ShopController">
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="436.0" prefWidth="661.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.ShopController">
   <tabs>
-    <Tab text="Login">
+    <Tab fx:id="loginTab" text="Login">
       <content>
-        <AnchorPane id="loginStatusLabel" minHeight="0.0" minWidth="0.0" prefHeight="368.0" prefWidth="590.0">
+        <AnchorPane id="loginStatusLabel" minHeight="0.0" minWidth="0.0" prefHeight="423.0" prefWidth="630.0">
                <children>
                   <TextField id="loginNameField" fx:id="loginNameField" layoutX="217.0" layoutY="48.0" prefHeight="34.0" prefWidth="166.0" promptText="Benutzername" />
                   <PasswordField id="loginPasswortField" fx:id="loginPasswortField" layoutX="217.0" layoutY="96.0" prefHeight="34.0" prefWidth="166.0" promptText="Passwort" />
                   <Button layoutX="256.0" layoutY="144.0" mnemonicParsing="false" onAction="#login" prefHeight="30.0" prefWidth="88.0" text="Login" />
-                  <Label id="loginStatusLabel" fx:id="loginStatusLabel" layoutX="256.0" layoutY="198.0" prefHeight="18.0" prefWidth="94.0" text="Nicht eingeloggt" />
+                  <Label id="loginStatusLabel" fx:id="loginStatusLabel" layoutX="256.0" layoutY="198.0" prefHeight="18.0" prefWidth="218.0" text="Nicht eingeloggt" />
+                  <Label layoutX="36.0" layoutY="14.0" prefHeight="18.0" prefWidth="43.0" text="Login" />
                </children></AnchorPane>
       </content>
     </Tab>
-    <Tab text="Artikel">
+      <Tab fx:id="kundeRegistrierenTab" text="KRegister">
+        <content>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <Label layoutX="25.0" layoutY="30.0" prefHeight="18.0" prefWidth="134.0" text="Kunde registrieren" />
+                  <TextField id="loginNameField" fx:id="kundeNameField" layoutX="211.0" layoutY="79.0" prefHeight="34.0" prefWidth="166.0" promptText="Name" />
+                  <TextField id="loginNameField" fx:id="kundeAdresseField" layoutX="211.0" layoutY="127.0" prefHeight="34.0" prefWidth="166.0" promptText="Address" />
+                  <TextField id="loginNameField" fx:id="kundeBenutzerkennungField" layoutX="211.0" layoutY="173.0" prefHeight="34.0" prefWidth="166.0" promptText="Benutzerkennung" />
+                  <PasswordField fx:id="kundePasswortField" layoutX="211.0" layoutY="221.0" prefHeight="36.0" prefWidth="166.0" promptText="Passwort" />
+                  <Button layoutX="229.0" layoutY="272.0" mnemonicParsing="false" onAction="#kundeRegistrieren" prefHeight="30.0" prefWidth="129.0" text="Kunde registrieren" />
+                  <Label id="loginStatusLabel" fx:id="kundeStatusLabel" layoutX="249.0" layoutY="320.0" prefHeight="18.0" prefWidth="164.0" text="Nicht Registriert" />
+               </children>
+            </AnchorPane>
+        </content>
+      </Tab>
+      <Tab fx:id="mitarbeiterRegistrierenTab" text="MRegister">
+         <content>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <Label layoutX="20.0" layoutY="32.0" prefHeight="18.0" prefWidth="134.0" text="Mitarbeiter registrieren" />
+                  <TextField id="loginNameField" fx:id="mitarbeiterNameField" layoutX="194.0" layoutY="87.0" prefHeight="34.0" prefWidth="166.0" promptText="Name" />
+                  <TextField id="loginNameField" fx:id="mitarbeiterBenutzerkennungField" layoutX="194.0" layoutY="132.0" prefHeight="34.0" prefWidth="166.0" promptText="Benutzerkennung" />
+                  <PasswordField fx:id="mitarbeiterPasswortField" layoutX="193.0" layoutY="180.0" prefHeight="30.0" prefWidth="168.0" promptText="Passwort" />
+                  <Button layoutX="201.0" layoutY="222.0" mnemonicParsing="false" onAction="#mitarbeiterRegistrieren" prefHeight="30.0" prefWidth="152.0" text="Mitarbeiter registrieren" />
+                  <Label id="loginStatusLabel" fx:id="mitarbeiterStatusLabel" layoutX="232.0" layoutY="265.0" prefHeight="18.0" prefWidth="218.0" text="Nicht registriert" />
+               </children>
+            </AnchorPane>
+         </content>
+      </Tab>
+    <Tab fx:id="artikelTab" text="Artikel">
       <content>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="444.0" prefWidth="615.0">
                <children>
@@ -37,7 +67,7 @@
                </children></AnchorPane>
       </content>
     </Tab>
-      <Tab text="Lager">
+      <Tab fx:id="lagerTab" text="Lager">
          <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
@@ -50,7 +80,7 @@
                </children></AnchorPane>
          </content>
       </Tab>
-      <Tab text="Ereignisse">
+      <Tab fx:id="ereignisseTab" text="Ereignisse">
          <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
@@ -58,6 +88,11 @@
                   <Button layoutX="214.0" layoutY="259.0" mnemonicParsing="false" onAction="#ereignisseAnzeigen" prefHeight="42.0" prefWidth="170.0" text="Ereignisse anzeigen" />
                </children></AnchorPane>
          </content>
+      </Tab>
+      <Tab fx:id="warenkorbTab" text="Warenkorb">
+        <content>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+        </content>
       </Tab>
   </tabs>
 </TabPane>

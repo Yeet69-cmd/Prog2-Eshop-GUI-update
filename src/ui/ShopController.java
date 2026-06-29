@@ -10,9 +10,13 @@ import logic.ShopService;
 import domain.*;
 
 public class ShopController {
+    private Benutzer eingeloggterBenutzer;
+    private Kunde aktuellerKunde;
     private ShopService shopService = new ShopService();
+
     public ShopController() {
         shopService.laden();
+
         if (!shopService.hatArtikel()) {
             try {
                 shopService.addArtikel(new Artikel(1, "Cola", 10, 2.5));
@@ -25,6 +29,8 @@ public class ShopController {
             }
         }
     }
+
+
 
     @FXML
     private TextField loginNameField;
@@ -51,24 +57,72 @@ public class ShopController {
     @FXML
     private TextField artikelPreisField;
 
-    @FXML
-    public void login(){
-        String benutzername = loginNameField.getText();
-        String password = loginPasswortField.getText();
-        loginStatusLabel.setText("Benutzer: "+benutzername);
+    @FXML private TextField kundeNameField;
+    @FXML private TextField kundeAdresseField;
+    @FXML private TextField kundeBenutzerkennungField;
+    @FXML private PasswordField kundePasswortField;
+    @FXML private Label kundeStatusLabel;
 
+    @FXML private TextField mitarbeiterNameField;
+    @FXML private TextField mitarbeiterBenutzerkennungField;
+    @FXML private PasswordField mitarbeiterPasswortField;
+    @FXML private Label mitarbeiterStatusLabel;
+
+    @FXML private Tab loginTab;
+    @FXML private Tab kundeRegistrierenTab;
+    @FXML private Tab mitarbeiterRegistrierenTab;
+    @FXML
+    private Tab artikelTab;
+    @FXML
+    private Tab lagerTab;
+    @FXML
+    private Tab ereignisseTab;
+    @FXML private Tab warenkorbTab;
+
+    @FXML
+    public void initialize() {
+        artikelTab.setDisable(true);
+        lagerTab.setDisable(true);
+        ereignisseTab.setDisable(true);
+        warenkorbTab.setDisable(true);
+        mitarbeiterRegistrierenTab.setDisable(true);
+    }
+    @FXML
+    public void login() {
+        try {
+            String benutzername = loginNameField.getText();
+            String passwort = loginPasswortField.getText();
+
+            eingeloggterBenutzer = shopService.login(benutzername, passwort);
+
+            if (eingeloggterBenutzer instanceof Kunde) {
+                aktuellerKunde = (Kunde) eingeloggterBenutzer;
+
+                artikelTab.setDisable(false);
+                warenkorbTab.setDisable(false);
+
+                lagerTab.setDisable(true);
+                ereignisseTab.setDisable(true);
+                mitarbeiterRegistrierenTab.setDisable(true);
+
+                loginStatusLabel.setText("Kunde eingeloggt: " + aktuellerKunde.getName());
+            } else if (eingeloggterBenutzer instanceof Mitarbeiter) {
+                artikelTab.setDisable(false);
+                lagerTab.setDisable(false);
+                ereignisseTab.setDisable(false);
+                mitarbeiterRegistrierenTab.setDisable(false);
+
+                warenkorbTab.setDisable(true);
+
+                loginStatusLabel.setText("Mitarbeiter eingeloggt: " + eingeloggterBenutzer.getName());
+            }
+
+        } catch (Exception e) {
+            loginStatusLabel.setText("Login fehlgeschlagen: " + e.getMessage());
+        }
     }
     @FXML
     public void artikelAnzeigen() {
-        System.out.println("Button geklickt");
-
-        artikelTextArea.clear();
-
-        for (Artikel artikel : shopService.getArtikelList()) {
-            artikelTextArea.appendText(artikel.toString() + "\n");
-        }
-        System.out.println(shopService.getArtikelList().size());
-
         artikelTextArea.clear();
 
         for (Artikel artikel : shopService.getArtikelList()) {
@@ -152,6 +206,45 @@ public class ShopController {
 
         } catch (Exception e) {
             artikelTextArea.setText(e.getMessage());
+        }
+    }
+    @FXML
+    public void kundeRegistrieren() {
+        try {
+            Kunde kunde = new Kunde(
+                    shopService.getNeuBenutzerId(),
+                    kundeNameField.getText(),
+                    kundeAdresseField.getText(),
+                    kundeBenutzerkennungField.getText(),
+                    kundePasswortField.getText()
+            );
+
+            shopService.kundeRegistrieren(kunde);
+            shopService.speichern();
+
+            kundeStatusLabel.setText("Kunde registriert: " + kunde.getName());
+
+        } catch (Exception e) {
+            kundeStatusLabel.setText("Fehler: " + e.getMessage());
+        }
+    }
+    @FXML
+    public void mitarbeiterRegistrieren() {
+        try {
+            Mitarbeiter mitarbeiter = new Mitarbeiter(
+                    shopService.getNeuBenutzerId(),
+                    mitarbeiterNameField.getText(),
+                    mitarbeiterBenutzerkennungField.getText(),
+                    mitarbeiterPasswortField.getText()
+            );
+
+            shopService.mitarbeiterRegistrieren(mitarbeiter);
+            shopService.speichern();
+
+            mitarbeiterStatusLabel.setText("Mitarbeiter registriert.");
+
+        } catch (Exception e) {
+            mitarbeiterStatusLabel.setText(e.getMessage());
         }
     }
 
