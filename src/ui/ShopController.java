@@ -120,12 +120,14 @@ public class ShopController {
         Artikel artikel = graphArtikelComboBox.getValue();
         if (artikel == null) return;
 
+        //clear old graph data before drawing new one
         bestandChart.getData().clear();
 
         XYChart.Series<Number, Number> series = new XYChart.Series<>();
         series.setName(artikel.getName());
-
+        //get the stock values (one per day)
         List<Integer> historie = shopService.getBestandsHistorie(artikel);
+
         for (int i = 0; i < historie.size(); i++) {
             series.getData().add(new XYChart.Data<>(i + 1, historie.get(i)));
         }
@@ -140,7 +142,7 @@ public class ShopController {
         warenkorbTab.setDisable(true);
         mitarbeiterRegistrierenTab.setDisable(true);
         bestandhistorieTab.setDisable(true);
-        //xaxis fix for the full day
+        //xaxis fix so it shows per day not half or 2.5
         xAxis.setTickUnit(1);
         xAxis.setMinorTickCount(0);
         xAxis.setAutoRanging(false);
@@ -395,7 +397,6 @@ public class ShopController {
 
             Rechnung r = shopService.kaufen(aktuellerKunde);
             shopService.speichern();
-
             warenkorbTextArea.clear();
             warenkorbTextArea.appendText("Rechnung:\n");
             warenkorbTextArea.appendText("Kunde: " + r.getKunde().getName() + "\n");
@@ -406,9 +407,7 @@ public class ShopController {
                         e.getArtikel().getName() + " x " + e.getMenge() + "\n"
                 );
             }
-
             warenkorbTextArea.appendText("\nGesamtpreis: " + r.getGesamtpreis() + " €");
-
             artikelAnzeigen();
             warenkorbArtikelTextArea.clear();
 
@@ -438,7 +437,6 @@ public class ShopController {
                     return;
                 }
             }
-
             artikelTextArea.setText("Artikel nicht gefunden.");
 
         } catch (Exception e) {
@@ -480,6 +478,4 @@ public class ShopController {
         shopService.sortiereNachName();
         artikelAnzeigen();
     }
-
-
 }

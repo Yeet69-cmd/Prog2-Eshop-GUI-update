@@ -207,16 +207,21 @@ public class ShopService {
     public List<Integer> getBestandsHistorie(Artikel artikel) {
         int heute = LocalDate.now().getDayOfYear();
         List<Integer> result = new ArrayList<>();
+
+        //go through each of the last 30 days from 29 days ago
         for (int tag = heute - 29; tag <= heute; tag++) {
             int bestandAnDiesemTag = 0;
+
+            //check all events before this day
             for (LagerEreignis e : lagerEreignisList) {
                 if (e.getArtikel().getArtikelId() == artikel.getArtikelId()
                         && e.getDatum() <= tag) {
-                    bestandAnDiesemTag = e.getBestandNachher();
+                    bestandAnDiesemTag = e.getBestandNachher(); //stock after that event
                 }
             }
-            result.add(bestandAnDiesemTag);
+
+            result.add(bestandAnDiesemTag); //store what the stock was on this day
         }
-        return result;
+        return result; //30 values, one per day
     }
 }
