@@ -2,14 +2,12 @@ package logic;
 
 import domain.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.time.LocalDate;
 import java.io.IOException;
 
-import domain.exceptions.ArtikelExistiertBereitsException;
-import domain.exceptions.NichtGenugBestandException;
-import domain.exceptions.ArtikelExistiertNichtException;
-import domain.exceptions.LoginFehlgeschlagenException;
+import domain.exceptions.*;
 
 
 public class ShopService {
@@ -139,11 +137,22 @@ public class ShopService {
         System.out.println("artikel.dat pfad: " + new java.io.File("artikel.dat").getAbsolutePath());
     }
     public void einlagern(int artikelId, int menge)
-            throws ArtikelExistiertNichtException {
+            throws ArtikelExistiertNichtException,MassengutException {
 
         for (Artikel artikel : artikelList) {
             if (artikel.getArtikelId() == artikelId) {
                 artikel.setBestand(artikel.getBestand() + menge);
+                if (artikel instanceof Massengutartikel) {
+
+                    Massengutartikel m = (Massengutartikel) artikel;
+
+                    if (menge % m.getPackungsgroesse() != 0) {
+                        throw new MassengutException(
+                                m.getPackungsgroesse()
+                        );
+                    }
+
+                }
 
                 int tag = LocalDate.now().getDayOfYear();
                 lagerEreignisList.add(
@@ -159,7 +168,7 @@ public class ShopService {
     }
 
     public void auslagern(int artikelId, int menge)
-            throws ArtikelExistiertNichtException, NichtGenugBestandException {
+            throws ArtikelExistiertNichtException, NichtGenugBestandException, MassengutException {
 
         for (Artikel artikel : artikelList) {
             if (artikel.getArtikelId() == artikelId) {
@@ -173,6 +182,17 @@ public class ShopService {
                 }
 
                 artikel.setBestand(artikel.getBestand() - menge);
+                if (artikel instanceof Massengutartikel) {
+
+                    Massengutartikel m = (Massengutartikel) artikel;
+
+                    if (menge % m.getPackungsgroesse() != 0) {
+                        throw new MassengutException(
+                                m.getPackungsgroesse()
+                        );
+                    }
+
+                }
 
                 int tag = LocalDate.now().getDayOfYear();
                 lagerEreignisList.add(
@@ -186,5 +206,25 @@ public class ShopService {
         }
 
         throw new ArtikelExistiertNichtException(artikelId);
+    }
+    public void sortiereNachId() {
+        artikelList.sort(
+                Comparator.comparingInt(Artikel::getArtikelId)
+        );
+    }
+
+    public void sortiereNachName() {
+        artikelList.sort(
+                Comparator.comparing(Artikel::getName)
+        );
+    }
+    public List<Integer> getBestandsHistorie(Artikel artikel) {
+        List<Integer> historie = new ArrayList<>();
+        int heute = LocalDate.now().getDayOfYear();
+        int bestand = artikel.getBestand();
+        for (int tag = heute - 29; tag <= heute; tag++) {
+
+        }
+        return historie;
     }
 }

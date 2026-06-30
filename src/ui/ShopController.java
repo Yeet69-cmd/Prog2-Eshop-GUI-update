@@ -38,7 +38,11 @@ public class ShopController {
     }
 
 
+    @FXML
+    private CheckBox massengutCheckBox;
 
+    @FXML
+    private TextField packungsgroesseField;
     @FXML
     private TabPane shopTabPane;
     @FXML
@@ -142,7 +146,7 @@ public class ShopController {
         lagerTab.setDisable(true);
         ereignisseTab.setDisable(true);
         warenkorbTab.setDisable(true);
-        mitarbeiterRegistrierenTab.setDisable(false);
+        mitarbeiterRegistrierenTab.setDisable(true);
         bestandhistorieTab.setDisable(true);
     }
     @FXML
@@ -238,10 +242,28 @@ public class ShopController {
             int bestand = Integer.parseInt(artikelBestandField.getText());
             double preis = Double.parseDouble(artikelPreisField.getText());
 
-            Artikel artikel = new Artikel(id, name, bestand, preis);
+            Artikel artikel;
+            //Packungsgroesse checkbox
+            if (massengutCheckBox.isSelected()) {
+
+                int packungsgroesse = Integer.parseInt(packungsgroesseField.getText());
+                artikel = new Massengutartikel(id, name, bestand, preis, packungsgroesse);
+
+            } else {
+                artikel = new Artikel(id, name, bestand, preis);
+            }
+
+            shopService.addArtikel(artikel);
 
             shopService.addArtikel(artikel);
             shopService.speichern();
+            //clear artikel fields
+            artikelIdField.clear();
+            artikelNameField.clear();
+            artikelBestandField.clear();
+            artikelPreisField.clear();
+            packungsgroesseField.clear();
+            massengutCheckBox.setSelected(false);
 
             artikelAnzeigen();
 
@@ -407,22 +429,23 @@ public class ShopController {
     }
     @FXML
     public void bestandAndern() {
-
         try {
-
             int id = Integer.parseInt(artikelIdField.getText());
             int neuerBestand = Integer.parseInt(artikelBestandField.getText());
 
             for (Artikel artikel : shopService.getArtikelList()) {
-
                 if (artikel.getArtikelId() == id) {
 
-                    artikel.setBestand(neuerBestand);
+                    int alterBestand = artikel.getBestand();
+                    int differenz = neuerBestand - alterBestand;
 
-                    shopService.speichern();
+                    if (differenz > 0) {
+                        shopService.einlagern(id, differenz);
+                    } else if (differenz < 0) {
+                        shopService.auslagern(id, -differenz);
+                    }
 
                     artikelAnzeigen();
-
                     return;
                 }
             }
@@ -430,7 +453,7 @@ public class ShopController {
             artikelTextArea.setText("Artikel nicht gefunden.");
 
         } catch (Exception e) {
-            artikelTextArea.setText(e.getMessage());
+            artikelTextArea.setText("Fehler: " + e.getMessage());
         }
     }
     @FXML
@@ -457,6 +480,16 @@ public class ShopController {
     public void graphArtikelLaden() {
         graphArtikelComboBox.getItems().clear();
         graphArtikelComboBox.getItems().addAll(shopService.getArtikelList());
+    }
+    @FXML
+    public void sortiereNachId() {
+        shopService.sortiereNachId();
+        artikelAnzeigen();
+    }
+    @FXML
+    public void sortiereNachName() {
+        shopService.sortiereNachName();
+        artikelAnzeigen();
     }
 
 
