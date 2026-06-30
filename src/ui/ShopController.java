@@ -106,10 +106,14 @@ public class ShopController {
 
     @FXML
     private NumberAxis yAxis;
-
+    @FXML
+    private Tab bestandhistorieTab;
     @FXML
     public void graphAnzeigen() {
         Artikel artikel = graphArtikelComboBox.getValue();
+
+        System.out.println("Ausgewählter Artikel: " + artikel);
+        System.out.println("Ereignisse: " + shopService.getEreignisse().size());
 
         if (artikel == null) {
             return;
@@ -121,6 +125,8 @@ public class ShopController {
         series.setName(artikel.getName());
 
         for (LagerEreignis e : shopService.getEreignisse()) {
+            System.out.println(e);
+
             if (e.getArtikel().getArtikelId() == artikel.getArtikelId()) {
                 series.getData().add(
                         new XYChart.Data<>(e.getDatum(), e.getBestandNachher())
@@ -136,7 +142,8 @@ public class ShopController {
         lagerTab.setDisable(true);
         ereignisseTab.setDisable(true);
         warenkorbTab.setDisable(true);
-        mitarbeiterRegistrierenTab.setDisable(true);
+        mitarbeiterRegistrierenTab.setDisable(false);
+        bestandhistorieTab.setDisable(true);
     }
     @FXML
     public void login() {
@@ -155,6 +162,7 @@ public class ShopController {
                 lagerTab.setDisable(true);
                 ereignisseTab.setDisable(true);
                 mitarbeiterRegistrierenTab.setDisable(true);
+                bestandhistorieTab.setDisable(false);
 
                 loginStatusLabel.setText("Kunde eingeloggt: " + aktuellerKunde.getName());
             } else if (eingeloggterBenutzer instanceof Mitarbeiter) {
@@ -164,6 +172,7 @@ public class ShopController {
                 mitarbeiterRegistrierenTab.setDisable(false);
 
                 warenkorbTab.setDisable(true);
+                bestandhistorieTab.setDisable(false);
 
                 loginStatusLabel.setText("Mitarbeiter eingeloggt: " + eingeloggterBenutzer.getName());
             }
@@ -443,6 +452,11 @@ public class ShopController {
         kundeRegistrierenTab.setDisable(false);
         loginTab.setDisable(false);
         shopTabPane.getSelectionModel().select(loginTab);
+    }
+    @FXML
+    public void graphArtikelLaden() {
+        graphArtikelComboBox.getItems().clear();
+        graphArtikelComboBox.getItems().addAll(shopService.getArtikelList());
     }
 
 

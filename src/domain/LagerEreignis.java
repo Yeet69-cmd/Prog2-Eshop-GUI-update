@@ -36,10 +36,6 @@ public class LagerEreignis implements Serializable{
     }
     @Override
     public String toString() {
-        return datum + " | "
-                + typ + " | "
-                + artikel.getName()
-                + " | Menge: "
-                + anzahl;
+        return datum + " | " + typ + " | " + artikel.getName() + " | Menge: " + anzahl + " | Bestand danach: " + bestandNachher;
     }
 }
