@@ -3,6 +3,7 @@ package ui;
 import domain.Artikel;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import logic.*;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -24,6 +25,10 @@ public class ShopController {
                 shopService.addArtikel(new Artikel(1, "Cola", 10, 2.5));
                 shopService.addArtikel(new Artikel(2, "Chips", 5, 1.5));
                 shopService.speichern();
+                aktuellerKunde = new Kunde(1, "selim", "Bremerhaven", "selim1", "1234");
+                shopService.kundeRegistrieren(aktuellerKunde);
+                Mitarbeiter admin = new Mitarbeiter(1, "Admin", "admin", "1234");
+                shopService.mitarbeiterRegistrieren(admin);
 
                 System.out.println("Testdaten erstellt und gespeichert.");
             } catch (Exception e) {
@@ -104,7 +109,26 @@ public class ShopController {
 
     @FXML
     public void graphAnzeigen() {
-        System.out.println("Graph anzeigen geklickt");
+        Artikel artikel = graphArtikelComboBox.getValue();
+
+        if (artikel == null) {
+            return;
+        }
+
+        bestandChart.getData().clear();
+
+        XYChart.Series<Number, Number> series = new XYChart.Series<>();
+        series.setName(artikel.getName());
+
+        for (LagerEreignis e : shopService.getEreignisse()) {
+            if (e.getArtikel().getArtikelId() == artikel.getArtikelId()) {
+                series.getData().add(
+                        new XYChart.Data<>(e.getDatum(), e.getBestandNachher())
+                );
+            }
+        }
+
+        bestandChart.getData().add(series);
     }
     @FXML
     public void initialize() {
@@ -145,7 +169,7 @@ public class ShopController {
             }
 
         } catch (Exception e) {
-            loginStatusLabel.setText("Login fehlgeschlagen: " + e.getMessage());
+            loginStatusLabel.setText(e.getMessage());
         }
     }
     @FXML
@@ -420,5 +444,6 @@ public class ShopController {
         loginTab.setDisable(false);
         shopTabPane.getSelectionModel().select(loginTab);
     }
+
 
 }

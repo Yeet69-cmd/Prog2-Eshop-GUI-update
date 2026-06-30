@@ -23,7 +23,7 @@
                   <TextField id="loginNameField" fx:id="loginNameField" layoutX="217.0" layoutY="48.0" prefHeight="34.0" prefWidth="166.0" promptText="Benutzername" />
                   <PasswordField id="loginPasswortField" fx:id="loginPasswortField" layoutX="217.0" layoutY="96.0" prefHeight="34.0" prefWidth="166.0" promptText="Passwort" />
                   <Button layoutX="256.0" layoutY="144.0" mnemonicParsing="false" onAction="#login" prefHeight="30.0" prefWidth="88.0" text="Login" />
-                  <Label id="loginStatusLabel" fx:id="loginStatusLabel" layoutX="256.0" layoutY="198.0" prefHeight="18.0" prefWidth="218.0" text="Nicht eingeloggt" />
+                  <Label id="loginStatusLabel" fx:id="loginStatusLabel" layoutX="73.0" layoutY="196.0" prefHeight="18.0" prefWidth="575.0" text="                                                      Nicht eingeloggt" />
                   <Label layoutX="36.0" layoutY="14.0" prefHeight="18.0" prefWidth="43.0" text="Login" />
                   <Button layoutX="14.0" layoutY="484.0" mnemonicParsing="false" onAction="#logout" prefHeight="30.0" prefWidth="88.0" text="Logout" />
                </children></AnchorPane>
@@ -39,7 +39,7 @@
                   <TextField id="loginNameField" fx:id="kundeBenutzerkennungField" layoutX="211.0" layoutY="173.0" prefHeight="34.0" prefWidth="166.0" promptText="Benutzerkennung" />
                   <PasswordField fx:id="kundePasswortField" layoutX="211.0" layoutY="221.0" prefHeight="36.0" prefWidth="166.0" promptText="Passwort" />
                   <Button layoutX="229.0" layoutY="272.0" mnemonicParsing="false" onAction="#kundeRegistrieren" prefHeight="30.0" prefWidth="129.0" text="Kunde registrieren" />
-                  <Label id="loginStatusLabel" fx:id="kundeStatusLabel" layoutX="249.0" layoutY="320.0" prefHeight="18.0" prefWidth="164.0" text="Nicht Registriert" />
+                  <Label id="loginStatusLabel" fx:id="kundeStatusLabel" layoutX="244.0" layoutY="318.0" prefHeight="18.0" prefWidth="266.0" text="Nicht Registriert" />
                </children>
             </AnchorPane>
         </content>

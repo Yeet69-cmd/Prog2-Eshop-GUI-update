@@ -32,7 +32,7 @@ public class ShopClientUI {
             } catch (ArtikelExistiertBereitsException e) {
                 System.out.println(e.getMessage());
             }
-            aktuellerKunde = new Kunde(1, "Moe", "Bremerhaven", "Moe1", "Moeeee66");
+            aktuellerKunde = new Kunde(1, "Moe", "Bremerhaven", "selim1", "1234");
             shop.kundeRegistrieren(aktuellerKunde);
             Mitarbeiter admin = new Mitarbeiter(1, "Admin", "admin", "1234");
             shop.mitarbeiterRegistrieren(admin);
