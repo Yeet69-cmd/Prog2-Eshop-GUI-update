@@ -12,6 +12,8 @@ import javafx.scene.control.TextField;
 import logic.ShopService;
 import domain.*;
 
+import java.util.List;
+
 public class ShopController {
     private Benutzer eingeloggterBenutzer;
     private Kunde aktuellerKunde;
@@ -112,30 +114,20 @@ public class ShopController {
     private NumberAxis yAxis;
     @FXML
     private Tab bestandhistorieTab;
+
     @FXML
     public void graphAnzeigen() {
         Artikel artikel = graphArtikelComboBox.getValue();
-
-        System.out.println("Ausgewählter Artikel: " + artikel);
-        System.out.println("Ereignisse: " + shopService.getEreignisse().size());
-
-        if (artikel == null) {
-            return;
-        }
+        if (artikel == null) return;
 
         bestandChart.getData().clear();
 
         XYChart.Series<Number, Number> series = new XYChart.Series<>();
         series.setName(artikel.getName());
 
-        for (LagerEreignis e : shopService.getEreignisse()) {
-            System.out.println(e);
-
-            if (e.getArtikel().getArtikelId() == artikel.getArtikelId()) {
-                series.getData().add(
-                        new XYChart.Data<>(e.getDatum(), e.getBestandNachher())
-                );
-            }
+        List<Integer> historie = shopService.getBestandsHistorie(artikel);
+        for (int i = 0; i < historie.size(); i++) {
+            series.getData().add(new XYChart.Data<>(i + 1, historie.get(i)));
         }
 
         bestandChart.getData().add(series);
@@ -148,6 +140,12 @@ public class ShopController {
         warenkorbTab.setDisable(true);
         mitarbeiterRegistrierenTab.setDisable(true);
         bestandhistorieTab.setDisable(true);
+        //xaxis fix for the full day
+        xAxis.setTickUnit(1);
+        xAxis.setMinorTickCount(0);
+        xAxis.setAutoRanging(false);
+        xAxis.setLowerBound(1);
+        xAxis.setUpperBound(30);
     }
     @FXML
     public void login() {
@@ -252,9 +250,6 @@ public class ShopController {
             } else {
                 artikel = new Artikel(id, name, bestand, preis);
             }
-
-            shopService.addArtikel(artikel);
-
             shopService.addArtikel(artikel);
             shopService.speichern();
             //clear artikel fields
@@ -279,13 +274,9 @@ public class ShopController {
                     Integer.parseInt(
                             artikelIdField.getText()
                     );
-
             shopService.artikelLoeschen(artikelId);
-
             shopService.speichern();
-
             artikelAnzeigen();
-
         } catch (Exception e) {
             artikelTextArea.setText(e.getMessage());
         }
@@ -300,10 +291,8 @@ public class ShopController {
                     kundeBenutzerkennungField.getText(),
                     kundePasswortField.getText()
             );
-
             shopService.kundeRegistrieren(kunde);
             shopService.speichern();
-
             kundeStatusLabel.setText("Kunde registriert: " + kunde.getName());
 
         } catch (Exception e) {

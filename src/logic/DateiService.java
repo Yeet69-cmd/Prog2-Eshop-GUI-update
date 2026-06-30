@@ -9,7 +9,6 @@ public class DateiService {
             out.writeObject(objekt);
         }
     }
-
     public static Object laden(String dateiname) throws IOException, ClassNotFoundException {
 
         ObjectInputStream in = new ObjectInputStream(new FileInputStream(dateiname));

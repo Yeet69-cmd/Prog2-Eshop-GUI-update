@@ -133,12 +133,12 @@
                   <ComboBox fx:id="graphArtikelComboBox" layoutX="147.0" layoutY="26.0" prefHeight="26.0" prefWidth="300.0" />
                   <Button layoutX="347.0" layoutY="75.0" mnemonicParsing="false" onAction="#graphAnzeigen" text="Graph anzeigen" />
                   <Button layoutX="474.0" layoutY="26.0" mnemonicParsing="false" onAction="#graphArtikelLaden" text="Artikel laden" />
-                  <LineChart fx:id="bestandChart" layoutX="35.0" layoutY="112.0" prefHeight="395.0" prefWidth="551.0">
+                  <LineChart fx:id="bestandChart" layoutX="35.0" layoutY="112.0" prefHeight="395.0" prefWidth="551.0" title="Graph">
                     <xAxis>
-                        <NumberAxis label="Tag" />
+                        <NumberAxis label="Tag" fx:id="xAxis" />
                     </xAxis>
                     <yAxis>
-                      <NumberAxis Label="Bestand" />
+                      <NumberAxis fx:id="yAxis" label="Bestand" />
                     </yAxis>
                   </LineChart>
                </children>
