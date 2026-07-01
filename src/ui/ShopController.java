@@ -115,6 +115,8 @@ public class ShopController {
     @FXML
     private Tab bestandhistorieTab;
 
+
+
     @FXML
     public void graphAnzeigen() {
         Artikel artikel = graphArtikelComboBox.getValue();
@@ -134,6 +136,7 @@ public class ShopController {
 
         bestandChart.getData().add(series);
     }
+
     @FXML
     public void initialize() {
         artikelTab.setDisable(true);
@@ -141,13 +144,14 @@ public class ShopController {
         ereignisseTab.setDisable(true);
         warenkorbTab.setDisable(true);
         mitarbeiterRegistrierenTab.setDisable(true);
-        bestandhistorieTab.setDisable(true);
+        bestandhistorieTab.setDisable(false);
         //xaxis fix so it shows per day not half or 2.5
         xAxis.setTickUnit(1);
         xAxis.setMinorTickCount(0);
         xAxis.setAutoRanging(false);
         xAxis.setLowerBound(1);
         xAxis.setUpperBound(30);
+
     }
     @FXML
     public void login() {
@@ -166,7 +170,7 @@ public class ShopController {
                 lagerTab.setDisable(true);
                 ereignisseTab.setDisable(true);
                 mitarbeiterRegistrierenTab.setDisable(true);
-                bestandhistorieTab.setDisable(false);
+                bestandhistorieTab.setDisable(true);
 
                 loginStatusLabel.setText("Kunde eingeloggt: " + aktuellerKunde.getName());
             } else if (eingeloggterBenutzer instanceof Mitarbeiter) {
@@ -175,8 +179,8 @@ public class ShopController {
                 ereignisseTab.setDisable(false);
                 mitarbeiterRegistrierenTab.setDisable(false);
 
-                warenkorbTab.setDisable(true);
-                bestandhistorieTab.setDisable(false);
+                warenkorbTab.setDisable(false);
+                bestandhistorieTab.setDisable(true);
 
                 loginStatusLabel.setText("Mitarbeiter eingeloggt: " + eingeloggterBenutzer.getName());
             }
@@ -330,9 +334,7 @@ public class ShopController {
 
         for (Artikel artikel : shopService.getArtikelList()) {
 
-            warenkorbArtikelTextArea.appendText(
-                    artikel.toString() + "\n"
-            );
+            warenkorbArtikelTextArea.appendText(artikel.toString() + "\n");
 
             warenkorbArtikelComboBox.getItems().add(artikel);
         }
@@ -423,7 +425,6 @@ public class ShopController {
 
             for (Artikel artikel : shopService.getArtikelList()) {
                 if (artikel.getArtikelId() == id) {
-
                     int alterBestand = artikel.getBestand();
                     int differenz = neuerBestand - alterBestand;
 

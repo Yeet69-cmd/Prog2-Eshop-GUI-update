@@ -132,9 +132,9 @@ public class ShopService {
         } catch (IOException | ClassNotFoundException e) {
 
         }
-        System.out.println("Ordner: " + System.getProperty("user.dir"));
-        System.out.println("artikel.dat existiert: " + new java.io.File("artikel.dat").exists());
-        System.out.println("artikel.dat pfad: " + new java.io.File("artikel.dat").getAbsolutePath());
+        //System.out.println("Ordner: " + System.getProperty("user.dir"));
+        //System.out.println("artikel.dat existiert: " + new java.io.File("artikel.dat").exists());
+        //System.out.println("artikel.dat pfad: " + new java.io.File("artikel.dat").getAbsolutePath());
     }
     public void einlagern(int artikelId, int menge)
             throws ArtikelExistiertNichtException,MassengutException {
@@ -143,7 +143,7 @@ public class ShopService {
             if (artikel.getArtikelId() == artikelId) {
                 if (artikel instanceof Massengutartikel) {
                     Massengutartikel m = (Massengutartikel) artikel;
-                    if (menge % m.getPackungsgroesse() != 0) {
+                    if (menge % m.getPackungsgroesse()!=0) {
                         throw new MassengutException(m.getPackungsgroesse());
                     }
                 }
@@ -171,13 +171,10 @@ public class ShopService {
                     );
                 }
                 if (artikel instanceof Massengutartikel) {
-
                     Massengutartikel m = (Massengutartikel) artikel;
 
                     if (menge % m.getPackungsgroesse() != 0) {
-                        throw new MassengutException(
-                                m.getPackungsgroesse()
-                        );
+                        throw new MassengutException(m.getPackungsgroesse());
                     }
 
                 }
@@ -204,6 +201,7 @@ public class ShopService {
                 Comparator.comparing(Artikel::getName)
         );
     }
+
     public List<Integer> getBestandsHistorie(Artikel artikel) {
         int heute = LocalDate.now().getDayOfYear();
         List<Integer> result = new ArrayList<>();
@@ -224,4 +222,6 @@ public class ShopService {
         }
         return result; //30 values, one per day
     }
+
+
 }
