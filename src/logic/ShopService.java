@@ -163,6 +163,12 @@ public class ShopService {
                     }
                 }
 
+                if ((long) artikel.getBestand() + menge > Integer.MAX_VALUE) {
+                    throw new IllegalArgumentException(
+                            "Der Bestand würde den zulässigen Höchstwert überschreiten"
+                    );
+                }
+
                 artikel.setBestand(artikel.getBestand() + menge);
                 int tag = LocalDate.now().getDayOfYear();
 

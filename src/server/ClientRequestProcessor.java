@@ -144,6 +144,16 @@ public class ClientRequestProcessor implements Runnable {
         String benutzername = reader.readLine();
         String passwort = reader.readLine();
 
+        if (benutzername == null || benutzername.isBlank()) {
+            writer.println("FEHLER|Benutzername darf nicht leer sein");
+            return;
+        }
+
+        if (passwort == null || passwort.isBlank()) {
+            writer.println("FEHLER|Passwort darf nicht leer sein");
+            return;
+        }
+
         try {
             Benutzer benutzer = shopService.login(
                     benutzername,
@@ -362,6 +372,11 @@ public class ClientRequestProcessor implements Runnable {
             boolean massengut = Boolean.parseBoolean(reader.readLine());
             int packungsgroesse = Integer.parseInt(reader.readLine());
 
+            if (id <= 0) {
+                writer.println("FEHLER|Die Artikel-ID muss größer als 0 sein");
+                return;
+            }
+
             if (name == null || name.isBlank()) {
                 writer.println("FEHLER|Der Artikelname darf nicht leer sein");
                 return;
@@ -372,8 +387,8 @@ public class ClientRequestProcessor implements Runnable {
                 return;
             }
 
-            if (preis < 0) {
-                writer.println("FEHLER|Der Preis darf nicht negativ sein");
+            if (preis <= 0) {
+                writer.println("FEHLER|Der Preis muss größer als 0 sein");
                 return;
             }
 

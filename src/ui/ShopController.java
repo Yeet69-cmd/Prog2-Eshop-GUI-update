@@ -9,7 +9,6 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
-import logic.ShopService;
 import shared.LoginErgebnis;
 
 import java.io.IOException;
@@ -20,30 +19,7 @@ public class ShopController {
     private Benutzer eingeloggterBenutzer;
     private String eingeloggteBenutzerkennung;
     private Kunde aktuellerKunde;
-    private ShopService shopService = new ShopService();
     private final ShopClient shopClient = new ShopClient();
-
-    /* LOCAL FILES
-    public ShopController() {
-        shopService.laden();
-
-        if (!shopService.hatArtikel()) {
-            try {
-                shopService.addArtikel(new Artikel(1, "Cola", 10, 2.5));
-                shopService.addArtikel(new Artikel(2, "Chips", 5, 1.5));
-                shopService.speichern();
-                aktuellerKunde = new Kunde(1, "selim", "Bremerhaven", "selim1", "1234");
-                shopService.kundeRegistrieren(aktuellerKunde);
-                Mitarbeiter admin = new Mitarbeiter(1, "Admin", "admin", "1234");
-                shopService.mitarbeiterRegistrieren(admin);
-
-                System.out.println("Testdaten erstellt und gespeichert.");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    */
 
     @FXML
     private CheckBox massengutCheckBox;
