@@ -126,22 +126,39 @@ public class ShopController {
 
     @FXML
     public void graphAnzeigen() {
+
         Artikel artikel = graphArtikelComboBox.getValue();
-        if (artikel == null) return;
 
-        //clear old graph data before drawing new one
-        bestandChart.getData().clear();
-
-        XYChart.Series<Number, Number> series = new XYChart.Series<>();
-        series.setName(artikel.getName());
-        //get the stock values (one per day)
-        List<Integer> historie = shopService.getBestandsHistorie(artikel);
-
-        for (int i = 0; i < historie.size(); i++) {
-            series.getData().add(new XYChart.Data<>(i + 1, historie.get(i)));
+        if (artikel == null) {
+            bestandChart.setTitle("Bitte zuerst einen Artikel auswählen");
+            return;
         }
 
-        bestandChart.getData().add(series);
+        bestandChart.getData().clear();
+
+        try {
+            List<Integer> historie = shopClient.getBestandsHistorie(artikel.getArtikelId());
+
+            XYChart.Series<Number, Number> series =
+                    new XYChart.Series<>();
+
+            series.setName(artikel.getName());
+
+            for (int i = 0; i < historie.size(); i++) {
+                series.getData().add(
+                        new XYChart.Data<>(
+                                i + 1,
+                                historie.get(i)
+                        )
+                );
+            }
+
+            bestandChart.getData().add(series);
+            bestandChart.setTitle("Bestandsentwicklung der letzten 30 Tage");
+
+        } catch (IOException e) {
+            bestandChart.setTitle("Historie konnte nicht geladen werden: " + e.getMessage());
+        }
     }
 
     @FXML

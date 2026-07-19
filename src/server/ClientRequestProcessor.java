@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.List;
+
 import domain.Benutzer;
 import domain.Kunde;
 import domain.Mitarbeiter;
@@ -96,6 +98,9 @@ public class ClientRequestProcessor implements Runnable {
             } else if ("GET_EREIGNISSE".equals(anfrage)) {
 
                 ereignisseSenden(writer);
+            } else if ("GET_BESTANDSHISTORIE".equals(anfrage)) {
+
+                bestandsHistorieSenden(reader, writer);
             }
             else {
 
@@ -550,5 +555,40 @@ public class ClientRequestProcessor implements Runnable {
         }
 
         writer.println("ENDE");
+    }
+    private void bestandsHistorieSenden(
+            BufferedReader reader,
+            PrintWriter writer
+    ) throws IOException {
+
+        String idText = reader.readLine();
+
+        try {
+            int artikelId = Integer.parseInt(idText);
+
+            synchronized (shopService) {
+
+                Artikel artikel = shopService.findeArtikel(artikelId);
+
+                if (artikel == null) {
+                    writer.println("FEHLER|Artikel nicht gefunden");
+                    writer.println("ENDE");
+                    return;
+                }
+
+                List<Integer> historie =
+                        shopService.getBestandsHistorie(artikel);
+
+                for (Integer bestand : historie) {
+                    writer.println(bestand);
+                }
+            }
+
+            writer.println("ENDE");
+
+        } catch (NumberFormatException e) {
+            writer.println("FEHLER|Ungültige Artikel-ID");
+            writer.println("ENDE");
+        }
     }
 }

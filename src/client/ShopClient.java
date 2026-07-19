@@ -605,4 +605,43 @@ public class ShopClient {
 
         return ereignisse;
     }
+    public List<Integer> getBestandsHistorie(int artikelId)
+            throws IOException {
+
+        List<Integer> historie = new ArrayList<>();
+
+        try (
+                Socket socket = new Socket(HOST, PORT);
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(socket.getInputStream())
+                );
+                PrintWriter writer = new PrintWriter(
+                        socket.getOutputStream(),
+                        true
+                )
+        ) {
+            writer.println("GET_BESTANDSHISTORIE");
+            writer.println(artikelId);
+
+            String antwort;
+
+            while ((antwort = reader.readLine()) != null) {
+
+                if ("ENDE".equals(antwort)) {
+                    break;
+                }
+                if (antwort.startsWith("FEHLER|")) {
+                    throw new IOException(antwort.substring("FEHLER|".length()));
+                }
+
+                try {
+                    historie.add(Integer.parseInt(antwort));
+                } catch (NumberFormatException e) {
+                    throw new IOException("Ungültiger Historienwert: " + antwort, e);
+                }
+            }
+        }
+
+        return historie;
+    }
 }
