@@ -181,9 +181,18 @@ public class ShopController {
         try {
             String benutzername = loginNameField.getText();
             String passwort = loginPasswortField.getText();
+            benutzername = benutzername.trim();
 
-            LoginErgebnis ergebnis =
-                    shopClient.login(benutzername, passwort);
+            if (benutzername.isEmpty()) {
+                loginStatusLabel.setText("Bitte Benutzername eingeben.");
+                return;
+            }
+
+            if (passwort.isEmpty()) {
+                loginStatusLabel.setText("Bitte Passwort eingeben.");
+                return;
+            }
+            LoginErgebnis ergebnis = shopClient.login(benutzername, passwort);
 
             if (!ergebnis.isErfolgreich()) {
                 loginStatusLabel.setText(
@@ -248,17 +257,54 @@ public class ShopController {
     @FXML
     public void einlagern() {
 
+        if (eingeloggteBenutzerkennung == null) {
+            lagerStatusLabel.setText(
+                    "Bitte zuerst als Mitarbeiter einloggen."
+            );
+            return;
+        }
+
         try {
-            int artikelId = Integer.parseInt(lagerArtikelnummerField.getText());
-            int menge = Integer.parseInt(lagerMengeField.getText());
-            String meldung = shopClient.einlagern(eingeloggteBenutzerkennung, artikelId, menge);
+            int artikelId = Integer.parseInt(
+                    lagerArtikelnummerField.getText().trim()
+            );
+
+            int menge = Integer.parseInt(
+                    lagerMengeField.getText().trim()
+            );
+
+            if (artikelId <= 0) {
+                lagerStatusLabel.setText(
+                        "Die Artikel-ID muss größer als 0 sein."
+                );
+                return;
+            }
+
+            if (menge <= 0) {
+                lagerStatusLabel.setText(
+                        "Die Menge muss größer als 0 sein."
+                );
+                return;
+            }
+
+            if (menge > 100) {
+                lagerStatusLabel.setText("Die Menge ist zu groß.");
+                return;
+            }
+
+            String meldung = shopClient.einlagern(
+                    eingeloggteBenutzerkennung,
+                    artikelId,
+                    menge
+            );
             lagerStatusLabel.setText(meldung);
             lagerArtikelnummerField.clear();
             lagerMengeField.clear();
+
             artikelAnzeigen();
 
         } catch (NumberFormatException e) {
-            lagerStatusLabel.setText("Fehler: Artikel-ID und Menge müssen Zahlen sein");
+            lagerStatusLabel.setText("Artikel-ID und Menge müssen ganze Zahlen sein.");
 
         } catch (Exception e) {
             lagerStatusLabel.setText("Fehler: " + e.getMessage());
@@ -268,10 +314,32 @@ public class ShopController {
     @FXML
     public void auslagern() {
 
+        if (eingeloggteBenutzerkennung == null) {
+            lagerStatusLabel.setText("Bitte zuerst als Mitarbeiter einloggen.");
+            return;
+        }
+
         try {
-            int artikelId = Integer.parseInt(lagerArtikelnummerField.getText());
-            int menge = Integer.parseInt(lagerMengeField.getText());
-            String meldung = shopClient.auslagern(eingeloggteBenutzerkennung,artikelId, menge);
+            int artikelId = Integer.parseInt(lagerArtikelnummerField.getText().trim());
+
+            int menge = Integer.parseInt(lagerMengeField.getText().trim());
+
+            if (artikelId <= 0) {
+                lagerStatusLabel.setText("Die Artikel-ID muss größer als 0 sein.");
+                return;
+            }
+
+            if (menge <= 0) {
+                lagerStatusLabel.setText("Die Menge muss größer als 0 sein.");
+                return;
+            }
+
+            String meldung = shopClient.auslagern(
+                    eingeloggteBenutzerkennung,
+                    artikelId,
+                    menge
+            );
+
             lagerStatusLabel.setText(meldung);
             lagerArtikelnummerField.clear();
             lagerMengeField.clear();
@@ -279,9 +347,7 @@ public class ShopController {
             artikelAnzeigen();
 
         } catch (NumberFormatException e) {
-            lagerStatusLabel.setText(
-                    "Fehler: Artikel-ID und Menge müssen Zahlen sein"
-            );
+            lagerStatusLabel.setText("Artikel-ID und Menge müssen ganze Zahlen sein.");
 
         } catch (Exception e) {
             lagerStatusLabel.setText(
@@ -339,6 +405,47 @@ public class ShopController {
                 packungsgroesse = Integer.parseInt(
                         packungsgroesseField.getText()
                 );
+            }
+            if (id <= 0) {
+                artikelTextArea.setText(
+                        "Die Artikel-ID muss größer als 0 sein."
+                );
+                return;
+            }
+
+            if (name.isBlank()) {
+                artikelTextArea.setText("Der Artikelname darf nicht leer sein.");
+                return;
+            }
+
+            if (name.length() > 50) {
+                artikelTextArea.setText("Der Artikelname darf höchstens 50 Zeichen haben.");
+                return;
+            }
+
+            if (bestand < 0) {
+                artikelTextArea.setText("Der Bestand darf nicht negativ sein.");
+                return;
+            }
+
+            if (bestand > 100) {
+                artikelTextArea.setText("Der Bestand ist zu groß.");
+                return;
+            }
+
+            if (preis <= 0) {
+                artikelTextArea.setText("Der Preis muss größer als 0 sein.");
+                return;
+            }
+
+            if (massengut && packungsgroesse <= 0) {
+                artikelTextArea.setText("Die Packungsgröße muss größer als 0 sein.");
+                return;
+            }
+
+            if (massengut && bestand % packungsgroesse != 0) {
+                artikelTextArea.setText("Der Bestand muss ein Vielfaches der Packungsgröße sein.");
+                return;
             }
             String meldung = shopClient.artikelAnlegen(id, name, bestand, preis, massengut, packungsgroesse);
 
@@ -500,6 +607,20 @@ public class ShopController {
                 return;
             }
             int menge = Integer.parseInt(warenkorbMengeField.getText());
+            if (menge <= 0) {
+                warenkorbTextArea.setText("Die Menge muss größer als 0 sein.");
+                return;
+            }
+
+            if (menge > artikel.getBestand()) {
+                warenkorbTextArea.setText("Die gewünschte Menge ist größer als der Bestand.");
+                return;
+            }
+
+            if (menge > 100) {
+                warenkorbTextArea.setText("Die Menge ist zu groß.");
+                return;
+            }
             String meldung = shopClient.artikelInWarenkorb(eingeloggteBenutzerkennung, artikel.getArtikelId(), menge);
             warenkorbTextArea.setText(meldung);
         } catch (NumberFormatException e) {
@@ -575,6 +696,12 @@ public class ShopController {
 
             if (neuerBestand < 0) {
                 artikelTextArea.setText("Der Bestand darf nicht negativ sein.");
+                return;
+            }
+            if (neuerBestand > 100) {
+                artikelTextArea.setText(
+                        "Der Bestand ist zu groß."
+                );
                 return;
             }
 
