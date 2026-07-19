@@ -295,22 +295,25 @@ public class ClientRequestProcessor implements Runnable {
     ) throws IOException {
 
         try {
+            String benutzerkennung = reader.readLine();
             int artikelId = Integer.parseInt(reader.readLine());
             int menge = Integer.parseInt(reader.readLine());
 
-            if (menge <= 0) {
-                writer.println("FEHLER|Die Menge muss größer als 0 sein");
+            Mitarbeiter mitarbeiter = shopService.findeMitarbeiter(benutzerkennung);
+
+            if (mitarbeiter == null) {
+                writer.println("FEHLER|Nur Mitarbeiter dürfen Artikel einlagern");
                 return;
             }
 
             synchronized (shopService) {
-                shopService.einlagern(artikelId, menge);
+                shopService.einlagern(artikelId, menge, mitarbeiter);
             }
 
-            writer.println("OK|Einlagerung erfolgreich");
+            writer.println("OK|Artikel wurde erfolgreich eingelagert");
 
         } catch (NumberFormatException e) {
-            writer.println("FEHLER|Artikel-ID und Menge müssen Zahlen sein");
+            writer.println("FEHLER|Artikel-ID und Menge müssen ganze Zahlen sein");
 
         } catch (Exception e) {
             writer.println("FEHLER|" + e.getMessage());
@@ -322,22 +325,25 @@ public class ClientRequestProcessor implements Runnable {
     ) throws IOException {
 
         try {
+            String benutzerkennung = reader.readLine();
             int artikelId = Integer.parseInt(reader.readLine());
             int menge = Integer.parseInt(reader.readLine());
 
-            if (menge <= 0) {
-                writer.println("FEHLER|Die Menge muss größer als 0 sein");
+            Mitarbeiter mitarbeiter = shopService.findeMitarbeiter(benutzerkennung);
+
+            if (mitarbeiter == null) {
+                writer.println("FEHLER|Nur Mitarbeiter dürfen Artikel auslagern");
                 return;
             }
 
             synchronized (shopService) {
-                shopService.auslagern(artikelId, menge);
+                shopService.auslagern(artikelId, menge, mitarbeiter);
             }
 
-            writer.println("OK|Auslagerung erfolgreich");
+            writer.println("OK|Artikel wurde erfolgreich ausgelagert");
 
         } catch (NumberFormatException e) {
-            writer.println("FEHLER|Artikel-ID und Menge müssen Zahlen sein");
+            writer.println("FEHLER|Artikel-ID und Menge müssen ganze Zahlen sein");
 
         } catch (Exception e) {
             writer.println("FEHLER|" + e.getMessage());

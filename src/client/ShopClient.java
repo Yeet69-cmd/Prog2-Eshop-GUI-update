@@ -323,8 +323,8 @@ public class ShopClient {
 
         return rechnung;
     }
-    public String einlagern(int artikelId, int menge)
-            throws IOException {
+    public String einlagern(String benutzerkennung, int artikelId, int menge
+    ) throws IOException {
 
         try (
                 Socket socket = new Socket(HOST, PORT);
@@ -339,6 +339,7 @@ public class ShopClient {
                 )
         ) {
             writer.println("EINLAGERN");
+            writer.println(benutzerkennung);
             writer.println(artikelId);
             writer.println(menge);
 
@@ -362,6 +363,7 @@ public class ShopClient {
         }
     }
     public String auslagern(
+            String benutzerkennung,
             int artikelId,
             int menge
     ) throws IOException {
@@ -377,6 +379,7 @@ public class ShopClient {
                 )
         ) {
             writer.println("AUSLAGERN");
+            writer.println(benutzerkennung);
             writer.println(artikelId);
             writer.println(menge);
             String antwort = reader.readLine();

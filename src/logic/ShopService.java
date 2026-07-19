@@ -140,58 +140,81 @@ public class ShopService {
         //System.out.println("artikel.dat existiert: " + new java.io.File("artikel.dat").exists());
         //System.out.println("artikel.dat pfad: " + new java.io.File("artikel.dat").getAbsolutePath());
     }
-    public void einlagern(int artikelId, int menge)
-            throws ArtikelExistiertNichtException,MassengutException {
+    public void einlagern(
+            int artikelId,
+            int menge,
+            Mitarbeiter mitarbeiter
+    ) throws ArtikelExistiertNichtException, MassengutException {
+
+        if (menge <= 0) {
+            throw new IllegalArgumentException(
+                    "Menge muss größer als 0 sein"
+            );
+        }
 
         for (Artikel artikel : artikelList) {
             if (artikel.getArtikelId() == artikelId) {
+
                 if (artikel instanceof Massengutartikel) {
-                    Massengutartikel m = (Massengutartikel) artikel;
-                    if (menge % m.getPackungsgroesse()!=0) {
-                        throw new MassengutException(m.getPackungsgroesse());
+                    Massengutartikel massengutartikel = (Massengutartikel) artikel;
+
+                    if (menge % massengutartikel.getPackungsgroesse() != 0) {
+                        throw new MassengutException(massengutartikel.getPackungsgroesse());
                     }
                 }
+
                 artikel.setBestand(artikel.getBestand() + menge);
                 int tag = LocalDate.now().getDayOfYear();
+
                 lagerEreignisList.add(
-                        new LagerEreignis(tag, artikel, menge, null, "EIN", artikel.getBestand())
-                );
+                        new LagerEreignis(tag, artikel, menge, mitarbeiter, "EIN", artikel.getBestand()));
+
                 speichern();
                 return;
             }
         }
+
         throw new ArtikelExistiertNichtException(artikelId);
     }
-    public void auslagern(int artikelId, int menge)
-            throws ArtikelExistiertNichtException, NichtGenugBestandException, MassengutException {
+    public void auslagern(
+            int artikelId,
+            int menge,
+            Mitarbeiter mitarbeiter
+    ) throws ArtikelExistiertNichtException,
+            NichtGenugBestandException,
+            MassengutException {
+
+        if (menge <= 0) {
+            throw new IllegalArgumentException(
+                    "Menge muss größer als 0 sein"
+            );
+        }
+
         for (Artikel artikel : artikelList) {
             if (artikel.getArtikelId() == artikelId) {
 
                 if (menge > artikel.getBestand()) {
-                    throw new NichtGenugBestandException(
-                            artikel.getName(),
-                            menge,
-                            artikel.getBestand()
-                    );
+                    throw new NichtGenugBestandException(artikel.getName(), menge, artikel.getBestand());
                 }
+
                 if (artikel instanceof Massengutartikel) {
-                    Massengutartikel m = (Massengutartikel) artikel;
-
-                    if (menge % m.getPackungsgroesse() != 0) {
-                        throw new MassengutException(m.getPackungsgroesse());
+                    Massengutartikel massengutartikel = (Massengutartikel) artikel;
+                    if (menge % massengutartikel.getPackungsgroesse() != 0) {
+                        throw new MassengutException(massengutartikel.getPackungsgroesse());
                     }
-
                 }
+
                 artikel.setBestand(artikel.getBestand() - menge);
+
                 int tag = LocalDate.now().getDayOfYear();
+
                 lagerEreignisList.add(
-                        new LagerEreignis(tag, artikel, menge, null, "AUS", artikel.getBestand()
-                        )
-                );
+                        new LagerEreignis(tag, artikel, menge, mitarbeiter, "AUS", artikel.getBestand()));
                 speichern();
                 return;
             }
         }
+
         throw new ArtikelExistiertNichtException(artikelId);
     }
     public void sortiereNachId() {
@@ -270,6 +293,17 @@ public class ShopService {
         }
 
         return false;
+    }
+    public Mitarbeiter findeMitarbeiter(String benutzerkennung) {
+
+        for (Mitarbeiter mitarbeiter : mitarbeiterList) {
+            if (mitarbeiter.getBenutzerkennung()
+                    .equals(benutzerkennung)) {
+                return mitarbeiter;
+            }
+        }
+
+        return null;
     }
 
 }

@@ -1,22 +1,19 @@
 package ui;
 
+import client.ShopClient;
 import domain.Artikel;
+import domain.Benutzer;
+import domain.Kunde;
+import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import logic.*;
-import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
 import logic.ShopService;
-import domain.*;
-import client.ShopClient;
 import shared.LoginErgebnis;
+
 import java.io.IOException;
 import java.util.Comparator;
-import java.util.List;
-
 import java.util.List;
 
 public class ShopController {
@@ -26,6 +23,7 @@ public class ShopController {
     private ShopService shopService = new ShopService();
     private final ShopClient shopClient = new ShopClient();
 
+    /* LOCAL FILES
     public ShopController() {
         shopService.laden();
 
@@ -45,7 +43,7 @@ public class ShopController {
             }
         }
     }
-
+    */
 
     @FXML
     private CheckBox massengutCheckBox;
@@ -253,7 +251,7 @@ public class ShopController {
         try {
             int artikelId = Integer.parseInt(lagerArtikelnummerField.getText());
             int menge = Integer.parseInt(lagerMengeField.getText());
-            String meldung = shopClient.einlagern(artikelId, menge);
+            String meldung = shopClient.einlagern(eingeloggteBenutzerkennung, artikelId, menge);
             lagerStatusLabel.setText(meldung);
             lagerArtikelnummerField.clear();
             lagerMengeField.clear();
@@ -273,7 +271,7 @@ public class ShopController {
         try {
             int artikelId = Integer.parseInt(lagerArtikelnummerField.getText());
             int menge = Integer.parseInt(lagerMengeField.getText());
-            String meldung = shopClient.auslagern(artikelId, menge);
+            String meldung = shopClient.auslagern(eingeloggteBenutzerkennung,artikelId, menge);
             lagerStatusLabel.setText(meldung);
             lagerArtikelnummerField.clear();
             lagerMengeField.clear();
@@ -600,11 +598,11 @@ public class ShopController {
             int differenz = neuerBestand - alterBestand;
 
             if (differenz > 0) {
-                String meldung = shopClient.einlagern(id, differenz);
+                String meldung = shopClient.einlagern(eingeloggteBenutzerkennung, id, differenz);
                 artikelTextArea.setText(meldung);
 
             } else if (differenz < 0) {
-                String meldung = shopClient.auslagern(id, -differenz);
+                String meldung = shopClient.auslagern(eingeloggteBenutzerkennung, id, -differenz);
                 artikelTextArea.setText(meldung);
 
             } else {
