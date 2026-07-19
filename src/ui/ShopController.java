@@ -11,13 +11,17 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import logic.ShopService;
 import domain.*;
+import client.ShopClient;
+import shared.LoginErgebnis;
 
 import java.util.List;
 
 public class ShopController {
     private Benutzer eingeloggterBenutzer;
+    private String eingeloggteBenutzerkennung;
     private Kunde aktuellerKunde;
     private ShopService shopService = new ShopService();
+    private final ShopClient shopClient = new ShopClient();
 
     public ShopController() {
         shopService.laden();
@@ -144,7 +148,7 @@ public class ShopController {
         ereignisseTab.setDisable(true);
         warenkorbTab.setDisable(true);
         mitarbeiterRegistrierenTab.setDisable(true);
-        bestandhistorieTab.setDisable(false);
+        bestandhistorieTab.setDisable(true);
         //xaxis fix so it shows per day not half or 2.5
         xAxis.setTickUnit(1);
         xAxis.setMinorTickCount(0);
@@ -155,14 +159,22 @@ public class ShopController {
     }
     @FXML
     public void login() {
+
         try {
             String benutzername = loginNameField.getText();
             String passwort = loginPasswortField.getText();
 
-            eingeloggterBenutzer = shopService.login(benutzername, passwort);
+            LoginErgebnis ergebnis =
+                    shopClient.login(benutzername, passwort);
 
-            if (eingeloggterBenutzer instanceof Kunde) {
-                aktuellerKunde = (Kunde) eingeloggterBenutzer;
+            if (!ergebnis.isErfolgreich()) {
+                loginStatusLabel.setText(
+                        ergebnis.getFehlermeldung()
+                );
+                return;
+            }
+            eingeloggteBenutzerkennung = ergebnis.getBenutzerkennung();
+            if ("KUNDE".equals(ergebnis.getRolle())) {
 
                 artikelTab.setDisable(true);
                 warenkorbTab.setDisable(false);
@@ -172,41 +184,57 @@ public class ShopController {
                 mitarbeiterRegistrierenTab.setDisable(true);
                 bestandhistorieTab.setDisable(true);
 
-                loginStatusLabel.setText("Kunde eingeloggt: " + aktuellerKunde.getName());
-            } else if (eingeloggterBenutzer instanceof Mitarbeiter) {
+                loginStatusLabel.setText(
+                        "Kunde eingeloggt: "
+                                + ergebnis.getName()
+                );
+
+            } else if ("MITARBEITER".equals(ergebnis.getRolle())) {
+
                 artikelTab.setDisable(false);
                 lagerTab.setDisable(false);
                 ereignisseTab.setDisable(false);
                 mitarbeiterRegistrierenTab.setDisable(false);
 
                 warenkorbTab.setDisable(false);
-                bestandhistorieTab.setDisable(true);
+                bestandhistorieTab.setDisable(false);
 
-                loginStatusLabel.setText("Mitarbeiter eingeloggt: " + eingeloggterBenutzer.getName());
+                loginStatusLabel.setText("Mitarbeiter eingeloggt: " + ergebnis.getName());
             }
 
         } catch (Exception e) {
-            loginStatusLabel.setText(e.getMessage());
+            loginStatusLabel.setText("Server nicht erreichbar: " + e.getMessage()
+            );
         }
     }
     @FXML
     public void artikelAnzeigen() {
         artikelTextArea.clear();
-
-        for (Artikel artikel : shopService.getArtikelList()) {
-            artikelTextArea.appendText(artikel.toString() + "\n");
+        try {
+            List<String> artikelListe = shopClient.getArtikel();
+            for (String artikel : artikelListe) {
+                artikelTextArea.appendText(artikel + "\n");
+            }
+        } catch (Exception e) {
+            artikelTextArea.setText(
+                    "Server nicht erreichbar: " + e.getMessage()
+            );
         }
     }
     @FXML
     public void einlagern() {
+
         try {
             int artikelId = Integer.parseInt(lagerArtikelnummerField.getText());
             int menge = Integer.parseInt(lagerMengeField.getText());
-
-            shopService.einlagern(artikelId, menge);
-
-            lagerStatusLabel.setText("Einlagerung erfolgreich");
+            String meldung = shopClient.einlagern(artikelId, menge);
+            lagerStatusLabel.setText(meldung);
+            lagerArtikelnummerField.clear();
+            lagerMengeField.clear();
             artikelAnzeigen();
+
+        } catch (NumberFormatException e) {
+            lagerStatusLabel.setText("Fehler: Artikel-ID und Menge müssen Zahlen sein");
 
         } catch (Exception e) {
             lagerStatusLabel.setText("Fehler: " + e.getMessage());
@@ -215,17 +243,26 @@ public class ShopController {
 
     @FXML
     public void auslagern() {
+
         try {
             int artikelId = Integer.parseInt(lagerArtikelnummerField.getText());
             int menge = Integer.parseInt(lagerMengeField.getText());
+            String meldung = shopClient.auslagern(artikelId, menge);
+            lagerStatusLabel.setText(meldung);
+            lagerArtikelnummerField.clear();
+            lagerMengeField.clear();
 
-            shopService.auslagern(artikelId, menge);
-
-            lagerStatusLabel.setText("Auslagerung erfolgreich");
             artikelAnzeigen();
 
+        } catch (NumberFormatException e) {
+            lagerStatusLabel.setText(
+                    "Fehler: Artikel-ID und Menge müssen Zahlen sein"
+            );
+
         } catch (Exception e) {
-            lagerStatusLabel.setText("Fehler: " + e.getMessage());
+            lagerStatusLabel.setText(
+                    "Fehler: " + e.getMessage()
+            );
         }
     }
     @FXML
@@ -240,25 +277,29 @@ public class ShopController {
     }
     @FXML
     public void artikelAnlegen() {
+
         try {
             int id = Integer.parseInt(artikelIdField.getText());
-            String name = artikelNameField.getText();
+
+            String name = artikelNameField.getText().trim();
+
             int bestand = Integer.parseInt(artikelBestandField.getText());
-            double preis = Double.parseDouble(artikelPreisField.getText());
 
-            Artikel artikel;
-            //Packungsgroesse checkbox
-            if (massengutCheckBox.isSelected()) {
+            double preis = Double.parseDouble(
+                    artikelPreisField.getText().replace(",", ".")
+            );
 
-                int packungsgroesse = Integer.parseInt(packungsgroesseField.getText());
-                artikel = new Massengutartikel(id, name, bestand, preis, packungsgroesse);
+            boolean massengut = massengutCheckBox.isSelected();
 
-            } else {
-                artikel = new Artikel(id, name, bestand, preis);
+            int packungsgroesse = 0;
+            if (massengut) {
+                packungsgroesse = Integer.parseInt(
+                        packungsgroesseField.getText()
+                );
             }
-            shopService.addArtikel(artikel);
-            shopService.speichern();
-            //clear artikel fields
+            String meldung = shopClient.artikelAnlegen(id, name, bestand, preis, massengut, packungsgroesse);
+
+            artikelTextArea.setText(meldung);
             artikelIdField.clear();
             artikelNameField.clear();
             artikelBestandField.clear();
@@ -268,23 +309,42 @@ public class ShopController {
 
             artikelAnzeigen();
 
+        } catch (NumberFormatException e) {
+            artikelTextArea.setText(
+                    "ID, Bestand, Preis und Packungsgröße müssen gültige Zahlen sein."
+            );
+
         } catch (Exception e) {
-            artikelTextArea.setText(e.getMessage());
+            artikelTextArea.setText(
+                    "Fehler: " + e.getMessage()
+            );
         }
     }
     @FXML
     public void artikelLoeschen() {
 
         try {
-            int artikelId =
-                    Integer.parseInt(
-                            artikelIdField.getText()
-                    );
-            shopService.artikelLoeschen(artikelId);
-            shopService.speichern();
+            int artikelId = Integer.parseInt(
+                    artikelIdField.getText()
+            );
+
+            String meldung =
+                    shopClient.artikelLoeschen(artikelId);
+
+            artikelTextArea.setText(meldung);
+            artikelIdField.clear();
+
             artikelAnzeigen();
+
+        } catch (NumberFormatException e) {
+            artikelTextArea.setText(
+                    "Die Artikel-ID muss eine Zahl sein."
+            );
+
         } catch (Exception e) {
-            artikelTextArea.setText(e.getMessage());
+            artikelTextArea.setText(
+                    "Fehler: " + e.getMessage()
+            );
         }
     }
     @FXML
@@ -341,78 +401,76 @@ public class ShopController {
     }
     @FXML
     public void artikelInWarenkorb() {
+
         try {
-            if (aktuellerKunde == null) {
+            if (eingeloggteBenutzerkennung == null) {
                 warenkorbTextArea.setText("Bitte zuerst als Kunde einloggen.");
                 return;
             }
-
             Artikel artikel = warenkorbArtikelComboBox.getValue();
-
             if (artikel == null) {
                 warenkorbTextArea.setText("Bitte einen Artikel auswählen.");
                 return;
             }
-
             int menge = Integer.parseInt(warenkorbMengeField.getText());
-
-            aktuellerKunde.getWarenkorb().addArtikel(artikel, menge);
+            String meldung = shopClient.artikelInWarenkorb(eingeloggteBenutzerkennung, artikel.getArtikelId(), menge);
+            warenkorbTextArea.setText(meldung);
+        } catch (NumberFormatException e) {
+            warenkorbTextArea.setText(
+                    "Bitte eine gültige Menge eingeben."
+            );
+        } catch (Exception e) {
 
             warenkorbTextArea.setText(
-                    artikel.getName() + " x " + menge + " wurde in den Warenkorb gelegt."
+                    "Fehler: " + e.getMessage()
             );
+        }
+    }
+    @FXML
+    public void warenkorbAnzeigen() {
+
+        if (eingeloggteBenutzerkennung == null) {
+            warenkorbTextArea.setText("Bitte zuerst als Kunde einloggen.");
+            return;
+        }
+
+        try {
+            List<String> eintraege =
+                    shopClient.warenkorbAnzeigen(eingeloggteBenutzerkennung);
+
+            warenkorbTextArea.clear();
+            if (eintraege.isEmpty()) {
+                warenkorbTextArea.setText("Warenkorb ist leer.");
+                return;
+            }
+            for (String eintrag : eintraege) {
+                warenkorbTextArea.appendText(eintrag + "\n");
+            }
 
         } catch (Exception e) {
             warenkorbTextArea.setText("Fehler: " + e.getMessage());
         }
     }
     @FXML
-    public void warenkorbAnzeigen() {
-        if (aktuellerKunde == null) {
-            warenkorbTextArea.setText("Bitte zuerst als Kunde einloggen.");
-            return;
-        }
-
-        warenkorbTextArea.clear();
-
-        if (aktuellerKunde.getWarenkorb().getEintraege().isEmpty()) {
-            warenkorbTextArea.setText("Warenkorb ist leer.");
-            return;
-        }
-
-        for (WarenkorbEintrag e : aktuellerKunde.getWarenkorb().getEintraege()) {
-            warenkorbTextArea.appendText(
-                    e.getArtikel().getName()
-                            + " x "
-                            + e.getMenge()
-                            + "\n"
-            );
-        }
-    }
-    @FXML
     public void kaufen() {
-        try {
-            if (aktuellerKunde == null) {
-                warenkorbTextArea.setText("Bitte zuerst als Kunde einloggen.");
-                return;
-            }
 
-            Rechnung r = shopService.kaufen(aktuellerKunde);
-            shopService.speichern();
+        if (eingeloggteBenutzerkennung == null) {warenkorbTextArea.setText("Bitte zuerst als Kunde einloggen.");
+            return;
+        }
+
+        try {
+            List<String> rechnung = shopClient.kaufen(eingeloggteBenutzerkennung);
+
             warenkorbTextArea.clear();
             warenkorbTextArea.appendText("Rechnung:\n");
-            warenkorbTextArea.appendText("Kunde: " + r.getKunde().getName() + "\n");
-            warenkorbTextArea.appendText("Datum: " + r.getDatum() + "\n\n");
 
-            for (WarenkorbEintrag e : r.getWarenkorbList()) {
-                warenkorbTextArea.appendText(
-                        e.getArtikel().getName() + " x " + e.getMenge() + "\n"
-                );
+            for (String zeile : rechnung) {
+                warenkorbTextArea.appendText(zeile + "\n");
             }
-            warenkorbTextArea.appendText("\nGesamtpreis: " + r.getGesamtpreis() + " €");
-            artikelAnzeigen();
             warenkorbArtikelTextArea.clear();
-
+            warenkorbMengeField.clear();
+            //Reloads the changed stock from the server
+            artikelAnzeigen();
         } catch (Exception e) {
             warenkorbTextArea.setText("Fehler: " + e.getMessage());
         }
@@ -463,6 +521,7 @@ public class ShopController {
         kundeRegistrierenTab.setDisable(false);
         loginTab.setDisable(false);
         shopTabPane.getSelectionModel().select(loginTab);
+        eingeloggteBenutzerkennung = null;
     }
     @FXML
     public void graphArtikelLaden() {

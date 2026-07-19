@@ -223,5 +223,28 @@ public class ShopService {
         return result; //30 values, one per day
     }
 
+    public Kunde findeKunde(String benutzerkennung) {
+
+        for (Benutzer benutzer : kundenList) {
+            if (benutzer instanceof Kunde
+                    && benutzer.getBenutzerkennung().equals(benutzerkennung)) {
+
+                return (Kunde) benutzer;
+            }
+        }
+
+        return null;
+    }
+
+    public Artikel findeArtikel(int artikelId) {
+
+        for (Artikel artikel : artikelList) {
+            if (artikel.getArtikelId() == artikelId) {
+                return artikel;
+            }
+        }
+
+        return null;
+    }
 
 }
