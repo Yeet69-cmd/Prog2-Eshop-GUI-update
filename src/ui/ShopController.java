@@ -13,6 +13,9 @@ import logic.ShopService;
 import domain.*;
 import client.ShopClient;
 import shared.LoginErgebnis;
+import java.io.IOException;
+import java.util.Comparator;
+import java.util.List;
 
 import java.util.List;
 
@@ -209,16 +212,22 @@ public class ShopController {
     }
     @FXML
     public void artikelAnzeigen() {
+
         artikelTextArea.clear();
+
         try {
-            List<String> artikelListe = shopClient.getArtikel();
-            for (String artikel : artikelListe) {
+            List<Artikel> artikelListe = shopClient.getArtikel();
+            if (artikelListe.isEmpty()) {
+                artikelTextArea.setText("Keine Artikel vorhanden.");
+                return;
+            }
+
+            for (Artikel artikel : artikelListe) {
                 artikelTextArea.appendText(artikel + "\n");
             }
-        } catch (Exception e) {
-            artikelTextArea.setText(
-                    "Server nicht erreichbar: " + e.getMessage()
-            );
+
+        } catch (IOException e) {
+            artikelTextArea.setText("Artikel konnten nicht geladen werden: " + e.getMessage());
         }
     }
     @FXML
@@ -267,11 +276,30 @@ public class ShopController {
     }
     @FXML
     public void ereignisseAnzeigen() {
+
         ereignisTextArea.clear();
 
-        for (LagerEreignis e : shopService.getEreignisse()) {
-            ereignisTextArea.appendText(
-                    e.toString() + "\n"
+        try {
+            List<String> ereignisse =
+                    shopClient.getEreignisse();
+
+            if (ereignisse.isEmpty()) {
+                ereignisTextArea.setText(
+                        "Keine Lagerereignisse vorhanden."
+                );
+                return;
+            }
+
+            for (String ereignis : ereignisse) {
+                ereignisTextArea.appendText(
+                        ereignis + "\n"
+                );
+            }
+
+        } catch (IOException e) {
+            ereignisTextArea.setText(
+                    "Ereignisse konnten nicht geladen werden: "
+                            + e.getMessage()
             );
         }
     }
@@ -423,14 +451,24 @@ public class ShopController {
     public void warenkorbArtikelAnzeigen() {
 
         warenkorbArtikelTextArea.clear();
-
         warenkorbArtikelComboBox.getItems().clear();
 
-        for (Artikel artikel : shopService.getArtikelList()) {
+        try {
+            List<Artikel> artikelListe = shopClient.getArtikel();
 
-            warenkorbArtikelTextArea.appendText(artikel.toString() + "\n");
+            if (artikelListe.isEmpty()) {
+                warenkorbArtikelTextArea.setText("Keine Artikel vorhanden.");
+                return;
+            }
 
-            warenkorbArtikelComboBox.getItems().add(artikel);
+            warenkorbArtikelComboBox.getItems().addAll(artikelListe);
+            for (Artikel artikel : artikelListe) {
+                warenkorbArtikelTextArea.appendText(artikel + "\n");
+            }
+
+        } catch (IOException e) {
+            warenkorbArtikelTextArea.setText("Artikel konnten nicht geladen werden: " + e.getMessage()
+            );
         }
     }
     @FXML
@@ -512,28 +550,58 @@ public class ShopController {
     @FXML
     public void bestandAndern() {
         try {
-            int id = Integer.parseInt(artikelIdField.getText());
-            int neuerBestand = Integer.parseInt(artikelBestandField.getText());
+            int id = Integer.parseInt(artikelIdField.getText().trim());
+            int neuerBestand = Integer.parseInt(artikelBestandField.getText().trim());
 
-            for (Artikel artikel : shopService.getArtikelList()) {
+            if (id <= 0) {
+                artikelTextArea.setText("Die Artikel-ID muss größer als 0 sein.");
+                return;
+            }
+
+            if (neuerBestand < 0) {
+                artikelTextArea.setText("Der Bestand darf nicht negativ sein.");
+                return;
+            }
+
+            List<Artikel> artikelListe = shopClient.getArtikel();
+
+            Artikel gesuchterArtikel = null;
+
+            for (Artikel artikel : artikelListe) {
                 if (artikel.getArtikelId() == id) {
-                    int alterBestand = artikel.getBestand();
-                    int differenz = neuerBestand - alterBestand;
-
-                    if (differenz > 0) {
-                        shopService.einlagern(id, differenz);
-                    } else if (differenz < 0) {
-                        shopService.auslagern(id, -differenz);
-                    }
-
-                    artikelAnzeigen();
-                    return;
+                    gesuchterArtikel = artikel;
+                    break;
                 }
             }
-            artikelTextArea.setText("Artikel nicht gefunden.");
+
+            if (gesuchterArtikel == null) {
+                artikelTextArea.setText("Artikel nicht gefunden.");
+                return;
+            }
+
+            int alterBestand = gesuchterArtikel.getBestand();
+            int differenz = neuerBestand - alterBestand;
+
+            if (differenz > 0) {
+                String meldung = shopClient.einlagern(id, differenz);
+                artikelTextArea.setText(meldung);
+
+            } else if (differenz < 0) {
+                String meldung = shopClient.auslagern(id, -differenz);
+                artikelTextArea.setText(meldung);
+
+            } else {
+                artikelTextArea.setText("Der Bestand wurde nicht verändert.");
+                return;
+            }
+
+            artikelAnzeigen();
+
+        } catch (NumberFormatException e) {
+            artikelTextArea.setText("Artikel-ID und Bestand müssen ganze Zahlen sein.");
 
         } catch (Exception e) {
-            artikelTextArea.setText("Fehler: " + e.getMessage());
+            artikelTextArea.setText("Bestandsänderung fehlgeschlagen: " + e.getMessage());
         }
     }
     @FXML
@@ -559,17 +627,54 @@ public class ShopController {
     }
     @FXML
     public void graphArtikelLaden() {
+
         graphArtikelComboBox.getItems().clear();
-        graphArtikelComboBox.getItems().addAll(shopService.getArtikelList());
+
+        try {
+            graphArtikelComboBox.getItems().addAll(shopClient.getArtikel());
+
+        } catch (IOException e) {
+            bestandChart.setTitle("Artikel konnten nicht geladen werden: " + e.getMessage());
+        }
     }
     @FXML
     public void sortiereNachId() {
-        shopService.sortiereNachId();
-        artikelAnzeigen();
+
+        artikelTextArea.clear();
+
+        try {
+            List<Artikel> artikelListe = shopClient.getArtikel();
+
+            artikelListe.sort(Comparator.comparingInt(Artikel::getArtikelId));
+
+            for (Artikel artikel : artikelListe) {
+                artikelTextArea.appendText(artikel + "\n");
+            }
+
+        } catch (IOException e) {
+            artikelTextArea.setText("Sortieren fehlgeschlagen: " + e.getMessage());
+        }
     }
     @FXML
     public void sortiereNachName() {
-        shopService.sortiereNachName();
-        artikelAnzeigen();
+
+        artikelTextArea.clear();
+
+        try {
+            List<Artikel> artikelListe = shopClient.getArtikel();
+
+            artikelListe.sort(
+                    Comparator.comparing(Artikel::getName, String.CASE_INSENSITIVE_ORDER)
+            );
+
+            for (Artikel artikel : artikelListe) {artikelTextArea.appendText(artikel + "\n");
+            }
+
+        } catch (IOException e) {
+            artikelTextArea.setText(
+                    "Sortieren fehlgeschlagen: "
+                            + e.getMessage()
+            );
+        }
     }
 }

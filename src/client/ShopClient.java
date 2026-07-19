@@ -8,15 +8,16 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import shared.LoginErgebnis;
+import domain.Artikel;
 
 public class ShopClient {
 
     private static final String HOST = "localhost";
     private static final int PORT = 9999;
 
-    public List<String> getArtikel() throws IOException {
+    public List<Artikel> getArtikel() throws IOException {
 
-        List<String> artikelListe = new ArrayList<>();
+        List<Artikel> artikelListe = new ArrayList<>();
 
         try (
                 Socket socket = new Socket(HOST, PORT);
@@ -40,7 +41,38 @@ public class ShopClient {
                     break;
                 }
 
-                artikelListe.add(antwort);
+                if (antwort.startsWith("FEHLER|")) {
+                    throw new IOException(antwort.substring("FEHLER|".length()));
+                }
+
+                String[] teile = antwort.split("\\|", 4);
+
+                if (teile.length != 4) {
+                    throw new IOException("Ungültige Artikeldaten vom Server: " + antwort);
+                }
+
+                try {
+                    int artikelId = Integer.parseInt(teile[0]);
+                    String artikelName = teile[1];
+                    int bestand = Integer.parseInt(teile[2]);
+                    double preis = Double.parseDouble(teile[3]);
+
+                    artikelListe.add(
+                            new Artikel(
+                                    artikelId,
+                                    artikelName,
+                                    bestand,
+                                    preis
+                            )
+                    );
+
+                } catch (NumberFormatException e) {
+                    throw new IOException(
+                            "Ungültige Zahlenwerte vom Server: "
+                                    + antwort,
+                            e
+                    );
+                }
             }
         }
 
@@ -75,7 +107,7 @@ public class ShopClient {
         ShopClient client = new ShopClient();
 
         try {
-            for (String artikel : client.getArtikel()) {
+            for (Artikel artikel : client.getArtikel()) {
                 System.out.println(artikel);
             }
         } catch (IOException e) {
@@ -534,5 +566,43 @@ public class ShopClient {
 
             throw new IOException("Ungültige Serverantwort: " + antwort);
         }
+    }
+    public List<String> getEreignisse() throws IOException {
+
+        List<String> ereignisse = new ArrayList<>();
+
+        try (
+                Socket socket = new Socket(HOST, PORT);
+
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(socket.getInputStream())
+                );
+
+                PrintWriter writer = new PrintWriter(
+                        socket.getOutputStream(),
+                        true
+                )
+        ) {
+            writer.println("GET_EREIGNISSE");
+
+            String antwort;
+
+            while ((antwort = reader.readLine()) != null) {
+
+                if ("ENDE".equals(antwort)) {
+                    break;
+                }
+
+                if (antwort.startsWith("FEHLER|")) {
+                    throw new IOException(
+                            antwort.substring("FEHLER|".length())
+                    );
+                }
+
+                ereignisse.add(antwort);
+            }
+        }
+
+        return ereignisse;
     }
 }

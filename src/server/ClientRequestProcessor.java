@@ -93,6 +93,9 @@ public class ClientRequestProcessor implements Runnable {
 
                 mitarbeiterRegistrieren(reader, writer);
 
+            } else if ("GET_EREIGNISSE".equals(anfrage)) {
+
+                ereignisseSenden(writer);
             }
             else {
 
@@ -118,11 +121,14 @@ public class ClientRequestProcessor implements Runnable {
 
     private void artikelSenden(PrintWriter writer) {
 
-        for (Artikel artikel : shopService.getArtikelList()) {
-            writer.println(artikel.toString());
+        synchronized (shopService) {
+            for (Artikel artikel : shopService.getArtikelList()) {
+                writer.println(
+                        artikel.getArtikelId() + "|" + artikel.getName() + "|" + artikel.getBestand() + "|"
+                                + artikel.getPreis()
+                );
+            }
         }
-
-        //Marks the end of the list
         writer.println("ENDE");
     }
     private void loginVerarbeiten(
@@ -526,5 +532,23 @@ public class ClientRequestProcessor implements Runnable {
         }
 
         writer.println("OK|Mitarbeiter wurde registriert");
+    }
+    private void ereignisseSenden(PrintWriter writer) {
+
+        synchronized (shopService) {
+
+            if (shopService.getEreignisse().isEmpty()) {
+                writer.println("ENDE");
+                return;
+            }
+
+            for (LagerEreignis ereignis :
+                    shopService.getEreignisse()) {
+
+                writer.println(ereignis.toString());
+            }
+        }
+
+        writer.println("ENDE");
     }
 }
