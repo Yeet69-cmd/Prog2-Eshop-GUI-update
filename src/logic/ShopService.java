@@ -67,11 +67,15 @@ public class ShopService {
         return rechnung;
     }
     public void kundeRegistrieren(Kunde kunde) {
-        this.kundenList.add(kunde);
+        kundenList.add(kunde);
+        speichern();
     }
+
     public void mitarbeiterRegistrieren(Mitarbeiter mitarbeiter) {
-        this.mitarbeiterList.add(mitarbeiter);
+        mitarbeiterList.add(mitarbeiter);
+        speichern();
     }
+
     public Benutzer login(String benutzername, String password)
             throws LoginFehlgeschlagenException {
 
@@ -245,6 +249,27 @@ public class ShopService {
         }
 
         return null;
+    }
+    public boolean benutzerkennungExistiert(String benutzerkennung) {
+        if (benutzerkennung == null || benutzerkennung.isBlank()) {
+            return false;
+        }
+
+        for (Benutzer kunde : kundenList) {
+            if (kunde.getBenutzerkennung()
+                    .equalsIgnoreCase(benutzerkennung)) {
+                return true;
+            }
+        }
+
+        for (Mitarbeiter mitarbeiter : mitarbeiterList) {
+            if (mitarbeiter.getBenutzerkennung()
+                    .equalsIgnoreCase(benutzerkennung)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

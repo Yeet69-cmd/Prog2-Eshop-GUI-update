@@ -451,4 +451,88 @@ public class ShopClient {
             );
         }
     }
+    public String kundeRegistrieren(
+            String name,
+            String adresse,
+            String benutzerkennung,
+            String passwort
+    ) throws IOException {
+
+        try (
+                Socket socket = new Socket(HOST, PORT);
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(socket.getInputStream())
+                );
+                PrintWriter writer = new PrintWriter(
+                        socket.getOutputStream(),
+                        true
+                )
+        ) {
+            writer.println("KUNDE_REGISTRIEREN");
+            writer.println(name);
+            writer.println(adresse);
+            writer.println(benutzerkennung);
+            writer.println(passwort);
+
+            String antwort = reader.readLine();
+
+            if (antwort == null) {
+                throw new IOException("Keine Antwort vom Server");
+            }
+
+            if (antwort.startsWith("FEHLER|")) {
+                throw new IOException(
+                        antwort.substring("FEHLER|".length())
+                );
+            }
+
+            if (antwort.startsWith("OK|")) {
+                return antwort.substring("OK|".length());
+            }
+
+            throw new IOException(
+                    "Ungültige Serverantwort: " + antwort
+            );
+        }
+    }
+    public String mitarbeiterRegistrieren(
+            String name,
+            String benutzerkennung,
+            String passwort
+    ) throws IOException {
+
+        try (
+                Socket socket = new Socket(HOST, PORT);
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(socket.getInputStream())
+                );
+                PrintWriter writer = new PrintWriter(
+                        socket.getOutputStream(),
+                        true
+                )
+        ) {
+            writer.println("MITARBEITER_REGISTRIEREN");
+            writer.println(name);
+            writer.println(benutzerkennung);
+            writer.println(passwort);
+
+            String antwort = reader.readLine();
+
+            if (antwort == null) {
+                throw new IOException("Keine Antwort vom Server");
+            }
+
+            if (antwort.startsWith("FEHLER|")) {
+                throw new IOException(
+                        antwort.substring("FEHLER|".length())
+                );
+            }
+
+            if (antwort.startsWith("OK|")) {
+                return antwort.substring("OK|".length());
+            }
+
+            throw new IOException("Ungültige Serverantwort: " + antwort);
+        }
+    }
 }

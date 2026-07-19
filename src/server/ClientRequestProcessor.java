@@ -85,6 +85,14 @@ public class ClientRequestProcessor implements Runnable {
             } else if ("ARTIKEL_LOESCHEN".equals(anfrage)) {
 
                 artikelLoeschen(reader, writer);
+            } else if ("KUNDE_REGISTRIEREN".equals(anfrage)) {
+
+                kundeRegistrieren(reader, writer);
+
+            } else if ("MITARBEITER_REGISTRIEREN".equals(anfrage)) {
+
+                mitarbeiterRegistrieren(reader, writer);
+
             }
             else {
 
@@ -422,5 +430,101 @@ public class ClientRequestProcessor implements Runnable {
 
             writer.println("FEHLER|" + meldung);
         }
+    }
+    private void kundeRegistrieren(
+            BufferedReader reader,
+            PrintWriter writer
+    ) throws IOException {
+
+        String name = reader.readLine();
+        String adresse = reader.readLine();
+        String benutzerkennung = reader.readLine();
+        String passwort = reader.readLine();
+
+        if (name == null || name.isBlank()) {
+            writer.println("FEHLER|Name darf nicht leer sein");
+            return;
+        }
+
+        if (adresse == null || adresse.isBlank()) {
+            writer.println("FEHLER|Adresse darf nicht leer sein");
+            return;
+        }
+
+        if (benutzerkennung == null || benutzerkennung.isBlank()) {
+            writer.println("FEHLER|Benutzerkennung darf nicht leer sein");
+            return;
+        }
+
+        if (passwort == null || passwort.isBlank()) {
+            writer.println("FEHLER|Passwort darf nicht leer sein");
+            return;
+        }
+
+        synchronized (shopService) {
+
+            if (shopService.benutzerkennungExistiert(
+                    benutzerkennung
+            )) {
+                writer.println("FEHLER|Benutzerkennung existiert bereits");
+                return;
+            }
+
+            Kunde kunde = new Kunde(
+                    shopService.getNeuBenutzerId(),
+                    name.trim(),
+                    adresse.trim(),
+                    benutzerkennung.trim(),
+                    passwort
+            );
+
+            shopService.kundeRegistrieren(kunde);
+        }
+
+        writer.println("OK|Kunde wurde registriert");
+    }
+    private void mitarbeiterRegistrieren(
+            BufferedReader reader,
+            PrintWriter writer
+    ) throws IOException {
+
+        String name = reader.readLine();
+        String benutzerkennung = reader.readLine();
+        String passwort = reader.readLine();
+
+        if (name == null || name.isBlank()) {
+            writer.println("FEHLER|Name darf nicht leer sein");
+            return;
+        }
+
+        if (benutzerkennung == null || benutzerkennung.isBlank()) {
+            writer.println("FEHLER|Benutzerkennung darf nicht leer sein");
+            return;
+        }
+
+        if (passwort == null || passwort.isBlank()) {
+            writer.println("FEHLER|Passwort darf nicht leer sein");
+            return;
+        }
+
+        synchronized (shopService) {
+
+            if (shopService.benutzerkennungExistiert(benutzerkennung))
+            {
+                writer.println("FEHLER|Benutzerkennung existiert bereits");
+                return;
+            }
+
+            Mitarbeiter mitarbeiter = new Mitarbeiter(
+                    shopService.getNeuBenutzerId(),
+                    name.trim(),
+                    benutzerkennung.trim(),
+                    passwort
+            );
+
+            shopService.mitarbeiterRegistrieren(mitarbeiter);
+        }
+
+        writer.println("OK|Mitarbeiter wurde registriert");
     }
 }

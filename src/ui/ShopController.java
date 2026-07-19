@@ -349,39 +349,73 @@ public class ShopController {
     }
     @FXML
     public void kundeRegistrieren() {
+
+        String name = kundeNameField.getText().trim();
+        String adresse = kundeAdresseField.getText().trim();
+        String benutzerkennung =
+                kundeBenutzerkennungField.getText().trim();
+        String passwort = kundePasswortField.getText();
+
+        if (name.isEmpty() || adresse.isEmpty() || benutzerkennung.isEmpty() || passwort.isEmpty())
+        {
+            kundeStatusLabel.setText("Bitte alle Felder ausfüllen.");
+            return;
+        }
+
         try {
-            Kunde kunde = new Kunde(
-                    shopService.getNeuBenutzerId(),
-                    kundeNameField.getText(),
-                    kundeAdresseField.getText(),
-                    kundeBenutzerkennungField.getText(),
-                    kundePasswortField.getText()
+            String meldung = shopClient.kundeRegistrieren(
+                    name,
+                    adresse,
+                    benutzerkennung,
+                    passwort
             );
-            shopService.kundeRegistrieren(kunde);
-            shopService.speichern();
-            kundeStatusLabel.setText("Kunde registriert: " + kunde.getName());
+
+            kundeStatusLabel.setText(meldung);
+
+            kundeNameField.clear();
+            kundeAdresseField.clear();
+            kundeBenutzerkennungField.clear();
+            kundePasswortField.clear();
 
         } catch (Exception e) {
-            kundeStatusLabel.setText("Fehler: " + e.getMessage());
+            kundeStatusLabel.setText(
+                    "Fehler: " + e.getMessage()
+            );
         }
     }
     @FXML
     public void mitarbeiterRegistrieren() {
-        try {
-            Mitarbeiter mitarbeiter = new Mitarbeiter(
-                    shopService.getNeuBenutzerId(),
-                    mitarbeiterNameField.getText(),
-                    mitarbeiterBenutzerkennungField.getText(),
-                    mitarbeiterPasswortField.getText()
+
+        String name = mitarbeiterNameField.getText().trim();
+        String benutzerkennung = mitarbeiterBenutzerkennungField.getText().trim();
+        String passwort = mitarbeiterPasswortField.getText();
+
+        if (name.isEmpty() || benutzerkennung.isEmpty() || passwort.isEmpty())
+        {
+            mitarbeiterStatusLabel.setText(
+                    "Bitte alle Felder ausfüllen."
             );
+            return;
+        }
 
-            shopService.mitarbeiterRegistrieren(mitarbeiter);
-            shopService.speichern();
+        try {
+            String meldung =
+                    shopClient.mitarbeiterRegistrieren(
+                            name,
+                            benutzerkennung,
+                            passwort
+                    );
 
-            mitarbeiterStatusLabel.setText("Mitarbeiter registriert.");
+            mitarbeiterStatusLabel.setText(meldung);
+
+            mitarbeiterNameField.clear();
+            mitarbeiterBenutzerkennungField.clear();
+            mitarbeiterPasswortField.clear();
 
         } catch (Exception e) {
-            mitarbeiterStatusLabel.setText(e.getMessage());
+            mitarbeiterStatusLabel.setText(
+                    "Fehler: " + e.getMessage()
+            );
         }
     }
     // WarenKorb
